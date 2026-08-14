@@ -1,0 +1,335 @@
+/*
+ * Emerald design tokens.
+ *
+ * Three layers, and nothing skips a layer:
+ *
+ *   1. palette   raw Catppuccin values. Referenced ONLY by layer 2.
+ *   2. semantic  what a colour means here (--surface, --edge, --accent…).
+ *                Components reference these and nothing else, so re-theming is
+ *                a change in one place and "which green is the active tab"
+ *                has exactly one answer.
+ *   3. component local vars derived from semantics where a component needs
+ *                its own rhythm.
+ *
+ * The rule that keeps this from becoming a theme dump: **accent is not
+ * decoration.** In Emerald the accent means "this is the live thing, or this
+ * is yours" — the active tab, the focused field, the current space. If a
+ * surface is accented and it is not the thing you are working on, that is a
+ * bug. Everything else is carried by the four greys and the type scale.
+ *
+ * See docs/design-language.md for the full reasoning.
+ */
+
+:root {
+  /* ---------------------------------------------------------------------
+   * 1. Palette — Catppuccin Mocha
+   * ------------------------------------------------------------------- */
+  --ctp-base: #1e1e2e;
+  --ctp-mantle: #181825;
+  --ctp-crust: #11111b;
+  --ctp-surface0: #313244;
+  --ctp-surface1: #45475a;
+  --ctp-surface2: #585b70;
+  --ctp-overlay0: #6c7086;
+  --ctp-overlay1: #7f849c;
+  --ctp-overlay2: #9399b2;
+  --ctp-subtext0: #a6adc8;
+  --ctp-subtext1: #bac2de;
+  --ctp-text: #cdd6f4;
+
+  --ctp-rosewater: #f5e0dc;
+  --ctp-flamingo: #f2cdcd;
+  --ctp-pink: #f5c2e7;
+  --ctp-mauve: #cba6f7;
+  --ctp-red: #f38ba8;
+  --ctp-maroon: #eba0ac;
+  --ctp-peach: #fab387;
+  --ctp-yellow: #f9e2af;
+  --ctp-green: #a6e3a1;
+  --ctp-teal: #94e2d5;
+  --ctp-sky: #89dceb;
+  --ctp-sapphire: #74c7ec;
+  --ctp-blue: #89b4fa;
+  --ctp-lavender: #b4befe;
+
+  /* ---------------------------------------------------------------------
+   * 2. Semantics
+   * ------------------------------------------------------------------- */
+
+  /* Surfaces, darkest to lightest. Depth is carried by value, not by shadow
+   * and not by blur: no glassmorphism anywhere in this file. */
+  --sunken: var(--ctp-crust);
+  --surface: var(--ctp-base);
+  --surface-raised: var(--ctp-mantle);
+  --surface-hover: var(--ctp-surface0);
+  --surface-active: var(--ctp-surface1);
+
+  /* Edges. One hairline weight; a second, brighter one for focus only. */
+  --edge: var(--ctp-surface0);
+  --edge-strong: var(--ctp-surface1);
+
+  /* Type. Three levels of emphasis is all any of this UI needs. */
+  --text: var(--ctp-text);
+  --text-dim: var(--ctp-subtext0);
+  --text-faint: var(--ctp-overlay1);
+
+  /* The accent. Overridden per-user by `[data-accent]` below. */
+  --accent: var(--ctp-green);
+  --accent-ink: var(--ctp-crust); /* text placed on top of --accent */
+
+  /* Status hues are FIXED across every theme, accent and sensory profile.
+   * Red always means destructive, yellow always means needs-attention. If
+   * these moved with the accent, the one thing colour is genuinely load-
+   * bearing for would stop being learnable. */
+  --danger: var(--ctp-red);
+  --warn: var(--ctp-yellow);
+  --info: var(--ctp-blue);
+
+  /* Focus ring. Blue rather than the accent, so "focused" and "active" are
+   * never the same colour — they are different states and often co-occur. */
+  --focus: var(--ctp-blue);
+  --focus-width: 2px;
+  --focus-offset: 2px;
+
+  /* ---------------------------------------------------------------------
+   * Type scale
+   *
+   * JetBrains Mono for chrome. A monospace UI font is an unusual choice and
+   * a deliberate one: tab titles, URLs and settings values are mostly
+   * identifiers, and a fixed advance width makes a column of them scannable
+   * in a way a proportional face is not. It also gives Emerald a face that
+   * is recognisably not the system default.
+   *
+   * Body/reading text is NOT mono — see --font-read.
+   *
+   * Scale is a 1.2 minor third off a 13px base, rounded to whole pixels.
+   * --ui-scale is set from settings.appearance.ui_font_size_pct.
+   * ------------------------------------------------------------------- */
+  --font-ui: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
+  --font-read: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --font-dyslexic: 'OpenDyslexic', 'Atkinson Hyperlegible', system-ui, sans-serif;
+
+  --ui-scale: 1;
+  --text-xs: calc(10px * var(--ui-scale));
+  --text-sm: calc(11px * var(--ui-scale));
+  --text-md: calc(13px * var(--ui-scale)); /* base */
+  --text-lg: calc(16px * var(--ui-scale));
+  --text-xl: calc(19px * var(--ui-scale));
+  --text-2xl: calc(23px * var(--ui-scale));
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-loose: 1.7;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  /* Tracking: mono at small sizes benefits from a little air. */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+
+  /* ---------------------------------------------------------------------
+   * Spacing — 4px base, no arbitrary values anywhere in the components
+   * ------------------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Radii. 2px unit, matching the icon grid's corner rule. Nothing in
+   * Emerald is a pill except the space chips, which are pills because they
+   * are the one control that is genuinely a toggle. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+
+  /* Density — set from settings.appearance.density */
+  --row-height: 32px;
+  --row-gap: 2px;
+  --pad-inline: var(--space-3);
+
+  /* ---------------------------------------------------------------------
+   * Motion
+   *
+   * --motion-scale comes from settings.focus_access.attention.animation_speed
+   * and is a multiplier on every duration. At 0 every transition below
+   * becomes 0ms and the UI simply snaps. Nothing is lost at zero: no
+   * information in Emerald is conveyed by movement alone.
+   *
+   * Only two properties are ever animated: opacity and transform. Never
+   * height, never colour, never anything that could read as a flash.
+   * ------------------------------------------------------------------- */
+  --motion-scale: 1;
+  --dur-fast: calc(90ms * var(--motion-scale));
+  --dur-base: calc(140ms * var(--motion-scale));
+  --dur-slow: calc(220ms * var(--motion-scale));
+  /* A single easing. Multiple curves in one UI read as multiple authors. */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Elevation. Shadow is used for exactly one thing — a surface that floats
+   * above the page (palette, dialog) — and never for hover or emphasis. */
+  --shadow-float: 0 12px 32px rgb(17 17 27 / 0.55), 0 2px 6px rgb(17 17 27 / 0.4);
+
+  color-scheme: dark;
+}
+
+/* ---------------------------------------------------------------------------
+ * Accent selection. Hue changes; meaning does not.
+ * ------------------------------------------------------------------------- */
+:root[data-accent='green'] { --accent: var(--ctp-green); }
+:root[data-accent='teal'] { --accent: var(--ctp-teal); }
+:root[data-accent='sapphire'] { --accent: var(--ctp-sapphire); }
+:root[data-accent='lavender'] { --accent: var(--ctp-lavender); }
+:root[data-accent='mauve'] { --accent: var(--ctp-mauve); }
+:root[data-accent='peach'] { --accent: var(--ctp-peach); }
+:root[data-accent='rosewater'] { --accent: var(--ctp-rosewater); }
+
+/* ---------------------------------------------------------------------------
+ * Catppuccin Latte, for bright rooms.
+ * ------------------------------------------------------------------------- */
+:root[data-theme='latte'] {
+  --ctp-base: #eff1f5;
+  --ctp-mantle: #e6e9ef;
+  --ctp-crust: #dce0e8;
+  --ctp-surface0: #ccd0da;
+  --ctp-surface1: #bcc0cc;
+  --ctp-surface2: #acb0be;
+  --ctp-overlay0: #9ca0b0;
+  --ctp-overlay1: #8c8fa1;
+  --ctp-overlay2: #7c7f93;
+  --ctp-subtext0: #6c6f85;
+  --ctp-subtext1: #5c5f77;
+  --ctp-text: #4c4f69;
+
+  --ctp-rosewater: #dc8a78;
+  --ctp-pink: #ea76cb;
+  --ctp-mauve: #8839ef;
+  --ctp-red: #d20f39;
+  --ctp-peach: #fe640b;
+  --ctp-yellow: #df8e1d;
+  --ctp-green: #40a02b;
+  --ctp-teal: #179299;
+  --ctp-sapphire: #209fb5;
+  --ctp-blue: #1e66f5;
+  --ctp-lavender: #7287fd;
+
+  /* Latte inverts the depth order: raised surfaces get lighter, not darker. */
+  --sunken: #dce0e8;
+  --surface: #eff1f5;
+  --surface-raised: #e6e9ef;
+  --accent-ink: #eff1f5;
+  --shadow-float: 0 12px 32px rgb(76 79 105 / 0.16), 0 2px 6px rgb(76 79 105 / 0.1);
+  color-scheme: light;
+}
+
+/* ---------------------------------------------------------------------------
+ * Sensory profiles.
+ *
+ * These change how loud colour is, never what it means. `muted` pulls accents
+ * toward the text colour and flattens surface separation; `high-contrast`
+ * pushes text/background apart past WCAG AAA and thickens focus rings.
+ * ------------------------------------------------------------------------- */
+:root[data-sensory='muted'] {
+  --accent: color-mix(in oklab, var(--ctp-green) 45%, var(--ctp-subtext0));
+  --danger: color-mix(in oklab, var(--ctp-red) 55%, var(--ctp-subtext0));
+  --warn: color-mix(in oklab, var(--ctp-yellow) 45%, var(--ctp-subtext0));
+  --info: color-mix(in oklab, var(--ctp-blue) 50%, var(--ctp-subtext0));
+  --focus: color-mix(in oklab, var(--ctp-blue) 65%, var(--ctp-subtext0));
+  --surface-raised: var(--ctp-base);
+  --surface-hover: color-mix(in oklab, var(--ctp-surface0) 55%, var(--ctp-base));
+  --accent-ink: var(--ctp-crust);
+  --shadow-float: 0 2px 0 var(--edge);
+}
+:root[data-sensory='muted'][data-accent='teal'] { --accent: color-mix(in oklab, var(--ctp-teal) 45%, var(--ctp-subtext0)); }
+:root[data-sensory='muted'][data-accent='sapphire'] { --accent: color-mix(in oklab, var(--ctp-sapphire) 45%, var(--ctp-subtext0)); }
+:root[data-sensory='muted'][data-accent='lavender'] { --accent: color-mix(in oklab, var(--ctp-lavender) 45%, var(--ctp-subtext0)); }
+:root[data-sensory='muted'][data-accent='mauve'] { --accent: color-mix(in oklab, var(--ctp-mauve) 45%, var(--ctp-subtext0)); }
+:root[data-sensory='muted'][data-accent='peach'] { --accent: color-mix(in oklab, var(--ctp-peach) 45%, var(--ctp-subtext0)); }
+:root[data-sensory='muted'][data-accent='rosewater'] { --accent: color-mix(in oklab, var(--ctp-rosewater) 45%, var(--ctp-subtext0)); }
+
+:root[data-sensory='high-contrast'] {
+  --text: #ffffff;
+  --text-dim: #dfe4f5;
+  --text-faint: #b9c0d4;
+  --surface: #0b0b12;
+  --surface-raised: #05050a;
+  --sunken: #000000;
+  --edge: #6c7086;
+  --edge-strong: #9399b2;
+  --focus-width: 3px;
+  --focus-offset: 3px;
+}
+:root[data-theme='latte'][data-sensory='high-contrast'] {
+  --text: #14161f;
+  --text-dim: #2c2f42;
+  --text-faint: #4c4f69;
+  --surface: #ffffff;
+  --surface-raised: #f4f6fa;
+  --sunken: #e9ecf3;
+  --edge: #7c7f93;
+  --edge-strong: #4c4f69;
+}
+
+/* ---------------------------------------------------------------------------
+ * Density
+ * ------------------------------------------------------------------------- */
+:root[data-density='compact'] {
+  --row-height: 26px;
+  --row-gap: 1px;
+  --pad-inline: var(--space-2);
+}
+:root[data-density='roomy'] {
+  --row-height: 40px;
+  --row-gap: var(--space-1);
+  --pad-inline: var(--space-4);
+}
+
+/* ---------------------------------------------------------------------------
+ * The non-negotiable.
+ *
+ * Nothing in Emerald's chrome may flash, blink, pulse or breathe — not in any
+ * theme, at any animation speed, for any reason. This is not enforceable by
+ * good intentions across a growing codebase, so it is enforced here: any
+ * infinitely-repeating animation is cancelled globally, whatever declared it.
+ *
+ * `Spinner` is the sole permitted exception and opts in explicitly by class.
+ * It rotates at a constant rate; it does not change opacity.
+ * ------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  animation-iteration-count: 1 !important;
+}
+
+.spin {
+  animation: emerald-rotate calc(1100ms * var(--motion-scale)) linear infinite !important;
+  animation-iteration-count: infinite !important;
+}
+
+/* At zero motion the spinner stops dead rather than crawling. */
+:root[data-motion='off'] .spin {
+  animation: none !important;
+}
+
+@keyframes emerald-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Respect the OS signal too, without waiting for the in-app setting. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-scale: 0;
+  }
+  .spin {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Autoplay and layout shift — Emerald bench fixture</title>
+<style>body{font-family:system-ui;margin:0;padding:40px;background:#fff;color:#111}
+video{width:320px;background:#000}
+.late{background:#fee;padding:20px;margin:16px 0}</style></head>
+<body>
+<!-- Fixture for Predictability: this page autoplays media and injects a banner
+     ABOVE the text half a second after load, which is the classic
+     "the paragraph you were reading jumped" failure. With no_layout_shift on,
+     the reading position should hold. -->
+<h1>Media and late content</h1>
+<div id="top"></div>
+<video autoplay loop muted playsinline
+       src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDE="></video>
+<audio autoplay loop src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="></audio>
+<p id="anchor">Watch this paragraph. If it moves when the banner appears, scroll anchoring is not working.</p>
+<p>Filler. </p><p>Filler. </p><p>Filler. </p><p>Filler. </p><p>Filler. </p>
+<script>
+  setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'late';
+    el.style.height = '180px';
+    el.textContent = 'A banner that arrived late and pushed everything down.';
+    document.getElementById('top').appendChild(el);
+  }, 600);
+</script>
+</body></html>

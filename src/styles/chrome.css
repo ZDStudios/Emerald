@@ -1,0 +1,856 @@
+/*
+ * Emerald chrome.
+ *
+ * Every value here comes from tokens.css. If you find a raw hex or a raw pixel
+ * measurement below that is not a border hairline, it is a bug.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  /* The chrome is furniture. Text selection here is almost always a misfire. */
+  user-select: none;
+  cursor: default;
+}
+
+:where(button, input, select, textarea) {
+  font: inherit;
+  color: inherit;
+}
+
+/* One focus treatment for the entire app. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--focus-width) solid var(--focus);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-sm);
+}
+
+.i {
+  flex: none;
+  display: block;
+}
+
+/* ---------------------------------------------------------------------------
+ * Shell
+ * ------------------------------------------------------------------------- */
+
+.shell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr;
+  height: 100%;
+}
+
+.shell[data-layout='top'] {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The hole. Page webviews are positioned over this rect by the core; whatever
+ * is painted here shows through only when no live webview covers it — which
+ * is exactly when we want to show a resting-tab or empty state. */
+.content {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: var(--sunken);
+}
+
+/* ---------------------------------------------------------------------------
+ * Sidebar
+ * ------------------------------------------------------------------------- */
+
+.sidebar {
+  width: 248px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--surface-raised);
+  border-inline-end: 1px solid var(--edge);
+  min-height: 0;
+  transition: opacity var(--dur-base) var(--ease);
+}
+
+.sidebar[data-collapsed='true'] {
+  width: 52px;
+}
+
+/* Focus mode, `dim`: everything that is not the active tab recedes but stays
+ * usable. Opacity only — nothing moves, nothing is removed from the layout. */
+.shell[data-focus='dim'] .sidebar,
+.shell[data-focus='dim'] .toolbar .nav {
+  opacity: var(--focus-dim, 0.35);
+}
+.shell[data-focus='dim'] .sidebar:hover,
+.shell[data-focus='dim'] .sidebar:focus-within,
+.shell[data-focus='dim'] .toolbar .nav:hover,
+.shell[data-focus='dim'] .toolbar .nav:focus-within {
+  opacity: 1;
+}
+
+.spaces {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  padding: var(--space-1);
+}
+
+.space-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 26px;
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-faint);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.space-chip:hover {
+  color: var(--text-dim);
+}
+
+.space-chip[aria-current='true'] {
+  color: var(--accent);
+  border-color: var(--edge-strong);
+  background: var(--surface);
+}
+
+.tablist {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--row-gap);
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge-strong) transparent;
+}
+
+.section-label {
+  padding: var(--space-2) var(--pad-inline) var(--space-1);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--row-height);
+  padding: 0 var(--pad-inline);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-dim);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.tab:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* The active tab is the one place the accent appears in the tab strip. It is
+ * carried by a 2px inline marker plus the text colour — not a filled pill,
+ * which at this density reads as a button rather than a state. */
+.tab[aria-current='true'] {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--edge);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.tab .title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-md);
+}
+
+/* A discarded tab. Dimmed and given the resting glyph — never hidden, never
+ * moved, never marked with a colour that reads as an error. */
+.tab[data-state='discarded'] .title {
+  color: var(--text-faint);
+}
+
+.tab .favicon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+.tab .close {
+  opacity: 0;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+
+.tab:hover .close,
+.tab:focus-within .close {
+  opacity: 1;
+}
+
+.tab .close:hover {
+  background: var(--surface-active);
+  color: var(--danger);
+}
+
+.sidebar-foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--row-gap);
+  border-top: 1px solid var(--edge);
+  padding-top: var(--space-2);
+}
+
+/* ---------------------------------------------------------------------------
+ * Buttons
+ * ------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--row-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.btn.ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.btn.ghost:hover {
+  background: var(--surface-hover);
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: var(--weight-medium);
+}
+
+.btn.danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn.start {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: var(--row-height);
+  height: var(--row-height);
+  flex: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.icon-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---------------------------------------------------------------------------
+ * Toolbar
+ * ------------------------------------------------------------------------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--edge);
+}
+
+.toolbar .nav {
+  display: flex;
+  gap: var(--space-1);
+  transition: opacity var(--dur-base) var(--ease);
+}
+
+.omnibox {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--row-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-faint);
+}
+
+.omnibox:focus-within {
+  border-color: var(--edge-strong);
+}
+
+.omnibox input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--text-md);
+  user-select: text;
+}
+
+.omnibox input::placeholder {
+  color: var(--text-faint);
+}
+
+.omnibox .scheme {
+  font-size: var(--text-xs);
+  color: var(--accent);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ---------------------------------------------------------------------------
+ * Command palette
+ * ------------------------------------------------------------------------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgb(17 17 27 / 0.55);
+  display: grid;
+  place-items: start center;
+  padding-top: 12vh;
+  z-index: 40;
+}
+
+.palette {
+  width: min(640px, 92vw);
+  max-height: 64vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-raised);
+  border: 1px solid var(--edge-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+}
+
+.palette-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--edge);
+  color: var(--text-faint);
+}
+
+.palette-input input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--text-lg);
+  user-select: text;
+}
+
+.palette-results {
+  overflow-y: auto;
+  padding: var(--space-2);
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge-strong) transparent;
+}
+
+.hit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-dim);
+  text-align: start;
+  cursor: pointer;
+}
+
+.hit[data-selected='true'] {
+  background: var(--surface);
+  border-color: var(--edge);
+  color: var(--text);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.hit .lines {
+  flex: 1;
+  min-width: 0;
+}
+
+.hit .h1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hit .h2 {
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kind {
+  flex: none;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ---------------------------------------------------------------------------
+ * Settings panel
+ * ------------------------------------------------------------------------- */
+
+.panel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  background: var(--surface);
+  z-index: 30;
+}
+
+.panel-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--row-gap);
+  padding: var(--space-4) var(--space-2);
+  border-inline-end: 1px solid var(--edge);
+  background: var(--surface-raised);
+}
+
+.panel-nav button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--row-height);
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-dim);
+  text-align: start;
+  cursor: pointer;
+}
+
+.panel-nav button:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.panel-nav button[aria-current='true'] {
+  background: var(--surface);
+  border-color: var(--edge);
+  color: var(--text);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.panel-body {
+  overflow-y: auto;
+  padding: var(--space-6) var(--space-6) var(--space-8);
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge-strong) transparent;
+}
+
+.panel-body > header {
+  max-width: 68ch;
+  margin-bottom: var(--space-5);
+}
+
+.panel-body h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-tight);
+}
+
+.panel-body .lede {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: var(--leading-loose);
+  font-family: var(--font-read);
+  font-size: var(--text-lg);
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 1fr minmax(180px, 260px);
+  gap: var(--space-4);
+  align-items: start;
+  max-width: 72ch;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--edge);
+}
+
+.field > .label {
+  min-width: 0;
+}
+
+.field .name {
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+.field .help {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+  line-height: var(--leading-loose);
+  max-width: 52ch;
+}
+
+.field .control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+.field select,
+.field input[type='text'],
+.field input[type='number'] {
+  min-height: var(--row-height);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--text);
+  user-select: text;
+}
+
+/* A switch, not a checkbox: the state is legible without colour, because the
+ * knob moves and the track outline changes. Colour is confirmation, never the
+ * only signal. */
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--row-height);
+  cursor: pointer;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch .track {
+  width: 44px;
+  height: 24px;
+  flex: none;
+  border: 1px solid var(--edge-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  position: relative;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+
+.switch .knob {
+  position: absolute;
+  top: 2px;
+  inset-inline-start: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  transition:
+    transform var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease);
+}
+
+.switch input:checked + .track {
+  background: color-mix(in oklab, var(--accent) 30%, var(--surface));
+  border-color: var(--accent);
+}
+
+.switch input:checked + .track .knob {
+  transform: translateX(20px);
+  background: var(--accent);
+}
+
+.switch input:focus-visible + .track {
+  outline: var(--focus-width) solid var(--focus);
+  outline-offset: var(--focus-offset);
+}
+
+.switch .state {
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+  min-width: 3ch;
+}
+
+.slider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.slider input[type='range'] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+  height: var(--row-height);
+}
+
+.slider .value {
+  min-width: 6ch;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+}
+
+.seg {
+  display: flex;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.seg button {
+  flex: 1;
+  min-height: var(--row-height);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-inline-end: 1px solid var(--edge);
+  background: var(--surface-raised);
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: var(--text-sm);
+}
+
+.seg button:last-child {
+  border-inline-end: 0;
+}
+
+.seg button[aria-pressed='true'] {
+  background: var(--surface-active);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.swatches {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.swatch[aria-pressed='true'] {
+  border-color: var(--text);
+}
+
+/* A live sample of the reading settings, so the effect of a slider is visible
+ * without navigating to a page first. */
+.reading-preview {
+  max-width: 72ch;
+  margin: var(--space-5) 0;
+  padding: var(--space-5);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.reading-preview p {
+  margin: 0 0 var(--para-space, 1em);
+}
+
+.reading-preview p:last-child {
+  margin-bottom: 0;
+}
+
+.note {
+  max-width: 68ch;
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 2px solid var(--edge-strong);
+  color: var(--text-faint);
+  font-size: var(--text-sm);
+  line-height: var(--leading-loose);
+}
+
+.note.warn {
+  border-inline-start-color: var(--warn);
+}
+
+.stat {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  margin: var(--space-4) 0;
+}
+
+.stat > div {
+  min-width: 120px;
+}
+
+.stat .n {
+  display: block;
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.stat .k {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ---------------------------------------------------------------------------
+ * Empty states + resting tab
+ * ------------------------------------------------------------------------- */
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.illus {
+  width: 96px;
+  height: 96px;
+  color: var(--edge-strong);
+}
+
+.empty h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  color: var(--text-dim);
+}
+
+.empty p {
+  margin: 0;
+  max-width: 44ch;
+  font-family: var(--font-read);
+  line-height: var(--leading-loose);
+}
+
+kbd {
+  display: inline-block;
+  padding: 1px var(--space-1);
+  border: 1px solid var(--edge-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced-motion / motion-off
+ * ------------------------------------------------------------------------- */
+
+:root[data-motion='off'] * {
+  transition: none !important;
+}

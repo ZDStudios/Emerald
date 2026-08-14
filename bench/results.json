@@ -1,0 +1,993 @@
+{
+  "idle_one_tab": [
+    {
+      "rss_kb": 519792,
+      "pss_kb": 238731,
+      "shell_rss_kb": 149940,
+      "processes": [
+        {
+          "pid": 11971,
+          "name": "emerald",
+          "rss_kb": 149940,
+          "pss_kb": 75661
+        },
+        {
+          "pid": 11983,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 50744,
+          "pss_kb": 20252
+        },
+        {
+          "pid": 11989,
+          "name": "WebKitWebProces",
+          "rss_kb": 165168,
+          "pss_kb": 76857
+        },
+        {
+          "pid": 11990,
+          "name": "WebKitWebProces",
+          "rss_kb": 153940,
+          "pss_kb": 65961
+        }
+      ],
+      "web_processes": 3,
+      "traces": {
+        "window": 7.0,
+        "chrome-webview": 26.5,
+        "tabs-created": 29.1,
+        "ready": 29.2,
+        "chrome-painted": 1146.2,
+        "wall_to_painted": 1277.1732119999797
+      },
+      "live_web_processes": 3
+    },
+    {
+      "rss_kb": 527940,
+      "pss_kb": 242733,
+      "shell_rss_kb": 154120,
+      "processes": [
+        {
+          "pid": 12663,
+          "name": "emerald",
+          "rss_kb": 154120,
+          "pss_kb": 77486
+        },
+        {
+          "pid": 12675,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 50956,
+          "pss_kb": 20315
+        },
+        {
+          "pid": 12681,
+          "name": "WebKitWebProces",
+          "rss_kb": 165576,
+          "pss_kb": 76618
+        },
+        {
+          "pid": 12682,
+          "name": "WebKitWebProces",
+          "rss_kb": 157288,
+          "pss_kb": 68314
+        }
+      ],
+      "web_processes": 3,
+      "traces": {
+        "window": 7.4,
+        "chrome-webview": 23.2,
+        "tabs-created": 25.5,
+        "ready": 25.5,
+        "chrome-painted": 1133.2,
+        "wall_to_painted": 1256.6076330003852
+      },
+      "live_web_processes": 3
+    },
+    {
+      "rss_kb": 526480,
+      "pss_kb": 240799,
+      "shell_rss_kb": 150088,
+      "processes": [
+        {
+          "pid": 13352,
+          "name": "emerald",
+          "rss_kb": 150088,
+          "pss_kb": 75344
+        },
+        {
+          "pid": 13364,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 50912,
+          "pss_kb": 20323
+        },
+        {
+          "pid": 13370,
+          "name": "WebKitWebProces",
+          "rss_kb": 166944,
+          "pss_kb": 76825
+        },
+        {
+          "pid": 13371,
+          "name": "WebKitWebProces",
+          "rss_kb": 158536,
+          "pss_kb": 68307
+        }
+      ],
+      "web_processes": 3,
+      "traces": {
+        "window": 7.4,
+        "chrome-webview": 25.0,
+        "tabs-created": 27.5,
+        "ready": 27.5,
+        "chrome-painted": 1150.2,
+        "wall_to_painted": 1286.407166000572
+      },
+      "live_web_processes": 3
+    }
+  ],
+  "all_awake": [
+    {
+      "rss_kb": 1616708,
+      "pss_kb": 416397,
+      "shell_rss_kb": 156668,
+      "processes": [
+        {
+          "pid": 12039,
+          "name": "emerald",
+          "rss_kb": 156668,
+          "pss_kb": 63186
+        },
+        {
+          "pid": 12053,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 51812,
+          "pss_kb": 15328
+        },
+        {
+          "pid": 12059,
+          "name": "WebKitWebProces",
+          "rss_kb": 172144,
+          "pss_kb": 51981
+        },
+        {
+          "pid": 12060,
+          "name": "WebKitWebProces",
+          "rss_kb": 156424,
+          "pss_kb": 36898
+        },
+        {
+          "pid": 12061,
+          "name": "WebKitWebProces",
+          "rss_kb": 156912,
+          "pss_kb": 36976
+        },
+        {
+          "pid": 12062,
+          "name": "WebKitWebProces",
+          "rss_kb": 150976,
+          "pss_kb": 33914
+        },
+        {
+          "pid": 12063,
+          "name": "WebKitWebProces",
+          "rss_kb": 154516,
+          "pss_kb": 34895
+        },
+        {
+          "pid": 12064,
+          "name": "WebKitWebProces",
+          "rss_kb": 154996,
+          "pss_kb": 36780
+        },
+        {
+          "pid": 12073,
+          "name": "WebKitWebProces",
+          "rss_kb": 149092,
+          "pss_kb": 33682
+        },
+        {
+          "pid": 12085,
+          "name": "WebKitWebProces",
+          "rss_kb": 154788,
+          "pss_kb": 35068
+        },
+        {
+          "pid": 12086,
+          "name": "WebKitWebProces",
+          "rss_kb": 158380,
+          "pss_kb": 37689
+        }
+      ],
+      "web_processes": 10,
+      "traces": {
+        "window": 6.3,
+        "chrome-webview": 22.0,
+        "tabs-created": 65.3,
+        "ready": 65.4,
+        "chrome-painted": 730.2,
+        "wall_to_painted": 852.0227869994415
+      },
+      "live_web_processes": 10
+    },
+    {
+      "rss_kb": 1619556,
+      "pss_kb": 415008,
+      "shell_rss_kb": 159076,
+      "processes": [
+        {
+          "pid": 12732,
+          "name": "emerald",
+          "rss_kb": 159076,
+          "pss_kb": 64389
+        },
+        {
+          "pid": 12746,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 51748,
+          "pss_kb": 15270
+        },
+        {
+          "pid": 12752,
+          "name": "WebKitWebProces",
+          "rss_kb": 168700,
+          "pss_kb": 48497
+        },
+        {
+          "pid": 12753,
+          "name": "WebKitWebProces",
+          "rss_kb": 154228,
+          "pss_kb": 34837
+        },
+        {
+          "pid": 12754,
+          "name": "WebKitWebProces",
+          "rss_kb": 156784,
+          "pss_kb": 36963
+        },
+        {
+          "pid": 12756,
+          "name": "WebKitWebProces",
+          "rss_kb": 151200,
+          "pss_kb": 33960
+        },
+        {
+          "pid": 12760,
+          "name": "WebKitWebProces",
+          "rss_kb": 157176,
+          "pss_kb": 37481
+        },
+        {
+          "pid": 12761,
+          "name": "WebKitWebProces",
+          "rss_kb": 156832,
+          "pss_kb": 37076
+        },
+        {
+          "pid": 12764,
+          "name": "WebKitWebProces",
+          "rss_kb": 150960,
+          "pss_kb": 34001
+        },
+        {
+          "pid": 12778,
+          "name": "WebKitWebProces",
+          "rss_kb": 154680,
+          "pss_kb": 35032
+        },
+        {
+          "pid": 12789,
+          "name": "WebKitWebProces",
+          "rss_kb": 158172,
+          "pss_kb": 37502
+        }
+      ],
+      "web_processes": 10,
+      "traces": {
+        "window": 6.6,
+        "chrome-webview": 27.1,
+        "tabs-created": 82.1,
+        "ready": 82.2,
+        "chrome-painted": 772.5,
+        "wall_to_painted": 892.5540290001663
+      },
+      "live_web_processes": 10
+    },
+    {
+      "rss_kb": 1612076,
+      "pss_kb": 409684,
+      "shell_rss_kb": 152300,
+      "processes": [
+        {
+          "pid": 13559,
+          "name": "emerald",
+          "rss_kb": 152300,
+          "pss_kb": 61080
+        },
+        {
+          "pid": 13708,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 51740,
+          "pss_kb": 15322
+        },
+        {
+          "pid": 13729,
+          "name": "WebKitWebProces",
+          "rss_kb": 169728,
+          "pss_kb": 49615
+        },
+        {
+          "pid": 13735,
+          "name": "WebKitWebProces",
+          "rss_kb": 154780,
+          "pss_kb": 34928
+        },
+        {
+          "pid": 13740,
+          "name": "WebKitWebProces",
+          "rss_kb": 156952,
+          "pss_kb": 36984
+        },
+        {
+          "pid": 13755,
+          "name": "WebKitWebProces",
+          "rss_kb": 151176,
+          "pss_kb": 33901
+        },
+        {
+          "pid": 13762,
+          "name": "WebKitWebProces",
+          "rss_kb": 154644,
+          "pss_kb": 34856
+        },
+        {
+          "pid": 13775,
+          "name": "WebKitWebProces",
+          "rss_kb": 157008,
+          "pss_kb": 37091
+        },
+        {
+          "pid": 13792,
+          "name": "WebKitWebProces",
+          "rss_kb": 150824,
+          "pss_kb": 33625
+        },
+        {
+          "pid": 13800,
+          "name": "WebKitWebProces",
+          "rss_kb": 154700,
+          "pss_kb": 34780
+        },
+        {
+          "pid": 13810,
+          "name": "WebKitWebProces",
+          "rss_kb": 158224,
+          "pss_kb": 37502
+        }
+      ],
+      "web_processes": 10,
+      "traces": {
+        "window": 7.9,
+        "chrome-webview": 29.2,
+        "tabs-created": 105.5,
+        "ready": 105.5,
+        "chrome-painted": 852.0,
+        "wall_to_painted": 991.0651520003739
+      },
+      "live_web_processes": 10
+    }
+  ],
+  "capped": [
+    {
+      "rss_kb": 688952,
+      "pss_kb": 276814,
+      "shell_rss_kb": 155832,
+      "processes": [
+        {
+          "pid": 12224,
+          "name": "emerald",
+          "rss_kb": 155832,
+          "pss_kb": 73890
+        },
+        {
+          "pid": 12238,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 51072,
+          "pss_kb": 18635
+        },
+        {
+          "pid": 12244,
+          "name": "WebKitWebProces",
+          "rss_kb": 168504,
+          "pss_kb": 67965
+        },
+        {
+          "pid": 12276,
+          "name": "WebKitWebProces",
+          "rss_kb": 156184,
+          "pss_kb": 57035
+        },
+        {
+          "pid": 12279,
+          "name": "WebKitWebProces",
+          "rss_kb": 157360,
+          "pss_kb": 59289
+        }
+      ],
+      "web_processes": 4,
+      "traces": {
+        "window": 7.0,
+        "chrome-webview": 27.1,
+        "tabs-created": 83.5,
+        "ready": 83.5,
+        "chrome-painted": 710.0,
+        "wall_to_painted": 848.5753249997288
+      },
+      "live_web_processes": 4
+    },
+    {
+      "rss_kb": 692152,
+      "pss_kb": 276735,
+      "shell_rss_kb": 156000,
+      "processes": [
+        {
+          "pid": 12911,
+          "name": "emerald",
+          "rss_kb": 156000,
+          "pss_kb": 73754
+        },
+        {
+          "pid": 12925,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 51180,
+          "pss_kb": 18649
+        },
+        {
+          "pid": 12931,
+          "name": "WebKitWebProces",
+          "rss_kb": 169264,
+          "pss_kb": 68351
+        },
+        {
+          "pid": 12947,
+          "name": "WebKitWebProces",
+          "rss_kb": 156956,
+          "pss_kb": 56566
+        },
+        {
+          "pid": 12948,
+          "name": "WebKitWebProces",
+          "rss_kb": 158752,
+          "pss_kb": 59415
+        }
+      ],
+      "web_processes": 4,
+      "traces": {
+        "window": 6.8,
+        "chrome-webview": 21.8,
+        "tabs-created": 53.2,
+        "ready": 53.2,
+        "chrome-painted": 691.7,
+        "wall_to_painted": 822.5548689997595
+      },
+      "live_web_processes": 4
+    },
+    {
+      "rss_kb": 691108,
+      "pss_kb": 275703,
+      "shell_rss_kb": 158876,
+      "processes": [
+        {
+          "pid": 13958,
+          "name": "emerald",
+          "rss_kb": 158876,
+          "pss_kb": 75297
+        },
+        {
+          "pid": 13972,
+          "name": "WebKitNetworkPr",
+          "rss_kb": 51096,
+          "pss_kb": 18662
+        },
+        {
+          "pid": 13978,
+          "name": "WebKitWebProces",
+          "rss_kb": 168380,
+          "pss_kb": 67649
+        },
+        {
+          "pid": 14004,
+          "name": "WebKitWebProces",
+          "rss_kb": 154300,
+          "pss_kb": 54493
+        },
+        {
+          "pid": 14014,
+          "name": "WebKitWebProces",
+          "rss_kb": 158456,
+          "pss_kb": 59602
+        }
+      ],
+      "web_processes": 4,
+      "traces": {
+        "window": 8.3,
+        "chrome-webview": 30.2,
+        "tabs-created": 91.0,
+        "ready": 91.1,
+        "chrome-painted": 710.3,
+        "wall_to_painted": 840.7979599996906
+      },
+      "live_web_processes": 4
+    }
+  ],
+  "chromium_one_tab": [
+    {
+      "rss_kb": 900436,
+      "pss_kb": 382371,
+      "shell_rss_kb": 258848,
+      "processes": [
+        {
+          "pid": 12361,
+          "name": "chrome",
+          "rss_kb": 258848,
+          "pss_kb": 143098
+        },
+        {
+          "pid": 12370,
+          "name": "chrome",
+          "rss_kb": 64444,
+          "pss_kb": 17894
+        },
+        {
+          "pid": 12371,
+          "name": "chrome",
+          "rss_kb": 63740,
+          "pss_kb": 14217
+        },
+        {
+          "pid": 12392,
+          "name": "chrome",
+          "rss_kb": 105196,
+          "pss_kb": 39281
+        },
+        {
+          "pid": 12391,
+          "name": "chrome",
+          "rss_kb": 167404,
+          "pss_kb": 81578
+        },
+        {
+          "pid": 12396,
+          "name": "chrome",
+          "rss_kb": 51544,
+          "pss_kb": 12234
+        },
+        {
+          "pid": 12439,
+          "name": "chrome",
+          "rss_kb": 120600,
+          "pss_kb": 53904
+        },
+        {
+          "pid": 12467,
+          "name": "chrome",
+          "rss_kb": 68660,
+          "pss_kb": 20165
+        }
+      ],
+      "web_processes": 0
+    },
+    {
+      "rss_kb": 895604,
+      "pss_kb": 378778,
+      "shell_rss_kb": 256320,
+      "processes": [
+        {
+          "pid": 13048,
+          "name": "chrome",
+          "rss_kb": 256320,
+          "pss_kb": 141652
+        },
+        {
+          "pid": 13057,
+          "name": "chrome",
+          "rss_kb": 63532,
+          "pss_kb": 17679
+        },
+        {
+          "pid": 13058,
+          "name": "chrome",
+          "rss_kb": 63128,
+          "pss_kb": 14155
+        },
+        {
+          "pid": 13079,
+          "name": "chrome",
+          "rss_kb": 104872,
+          "pss_kb": 38267
+        },
+        {
+          "pid": 13078,
+          "name": "chrome",
+          "rss_kb": 166912,
+          "pss_kb": 81134
+        },
+        {
+          "pid": 13082,
+          "name": "chrome",
+          "rss_kb": 51304,
+          "pss_kb": 12121
+        },
+        {
+          "pid": 13128,
+          "name": "chrome",
+          "rss_kb": 120096,
+          "pss_kb": 53375
+        },
+        {
+          "pid": 13156,
+          "name": "chrome",
+          "rss_kb": 69440,
+          "pss_kb": 20395
+        }
+      ],
+      "web_processes": 0
+    },
+    {
+      "rss_kb": 891120,
+      "pss_kb": 377358,
+      "shell_rss_kb": 256564,
+      "processes": [
+        {
+          "pid": 14093,
+          "name": "chrome",
+          "rss_kb": 256564,
+          "pss_kb": 141034
+        },
+        {
+          "pid": 14101,
+          "name": "chrome",
+          "rss_kb": 63600,
+          "pss_kb": 17920
+        },
+        {
+          "pid": 14103,
+          "name": "chrome",
+          "rss_kb": 63264,
+          "pss_kb": 14168
+        },
+        {
+          "pid": 14124,
+          "name": "chrome",
+          "rss_kb": 105200,
+          "pss_kb": 39134
+        },
+        {
+          "pid": 14123,
+          "name": "chrome",
+          "rss_kb": 165380,
+          "pss_kb": 81063
+        },
+        {
+          "pid": 14127,
+          "name": "chrome",
+          "rss_kb": 50904,
+          "pss_kb": 11978
+        },
+        {
+          "pid": 14173,
+          "name": "chrome",
+          "rss_kb": 117708,
+          "pss_kb": 51935
+        },
+        {
+          "pid": 14200,
+          "name": "chrome",
+          "rss_kb": 68500,
+          "pss_kb": 20126
+        }
+      ],
+      "web_processes": 0
+    }
+  ],
+  "chromium_many": [
+    {
+      "rss_kb": 1645816,
+      "pss_kb": 457179,
+      "shell_rss_kb": 265924,
+      "processes": [
+        {
+          "pid": 12476,
+          "name": "chrome",
+          "rss_kb": 265924,
+          "pss_kb": 139504
+        },
+        {
+          "pid": 12485,
+          "name": "chrome",
+          "rss_kb": 63044,
+          "pss_kb": 16227
+        },
+        {
+          "pid": 12486,
+          "name": "chrome",
+          "rss_kb": 63972,
+          "pss_kb": 10993
+        },
+        {
+          "pid": 12508,
+          "name": "chrome",
+          "rss_kb": 105008,
+          "pss_kb": 34173
+        },
+        {
+          "pid": 12507,
+          "name": "chrome",
+          "rss_kb": 166904,
+          "pss_kb": 76471
+        },
+        {
+          "pid": 12511,
+          "name": "chrome",
+          "rss_kb": 52936,
+          "pss_kb": 7338
+        },
+        {
+          "pid": 12555,
+          "name": "chrome",
+          "rss_kb": 107040,
+          "pss_kb": 19022
+        },
+        {
+          "pid": 12556,
+          "name": "chrome",
+          "rss_kb": 121492,
+          "pss_kb": 28851
+        },
+        {
+          "pid": 12573,
+          "name": "chrome",
+          "rss_kb": 101108,
+          "pss_kb": 17133
+        },
+        {
+          "pid": 12579,
+          "name": "chrome",
+          "rss_kb": 106864,
+          "pss_kb": 20469
+        },
+        {
+          "pid": 12591,
+          "name": "chrome",
+          "rss_kb": 107028,
+          "pss_kb": 19013
+        },
+        {
+          "pid": 12593,
+          "name": "chrome",
+          "rss_kb": 101248,
+          "pss_kb": 17193
+        },
+        {
+          "pid": 12604,
+          "name": "chrome",
+          "rss_kb": 106808,
+          "pss_kb": 20440
+        },
+        {
+          "pid": 12615,
+          "name": "chrome",
+          "rss_kb": 106848,
+          "pss_kb": 18955
+        },
+        {
+          "pid": 12652,
+          "name": "chrome",
+          "rss_kb": 69592,
+          "pss_kb": 11397
+        }
+      ],
+      "web_processes": 0
+    },
+    {
+      "rss_kb": 1645416,
+      "pss_kb": 458246,
+      "shell_rss_kb": 267220,
+      "processes": [
+        {
+          "pid": 13165,
+          "name": "chrome",
+          "rss_kb": 267220,
+          "pss_kb": 139460
+        },
+        {
+          "pid": 13174,
+          "name": "chrome",
+          "rss_kb": 63808,
+          "pss_kb": 16670
+        },
+        {
+          "pid": 13175,
+          "name": "chrome",
+          "rss_kb": 64640,
+          "pss_kb": 11047
+        },
+        {
+          "pid": 13196,
+          "name": "chrome",
+          "rss_kb": 105456,
+          "pss_kb": 34337
+        },
+        {
+          "pid": 13195,
+          "name": "chrome",
+          "rss_kb": 167004,
+          "pss_kb": 77510
+        },
+        {
+          "pid": 13199,
+          "name": "chrome",
+          "rss_kb": 52784,
+          "pss_kb": 7352
+        },
+        {
+          "pid": 13244,
+          "name": "chrome",
+          "rss_kb": 106432,
+          "pss_kb": 18765
+        },
+        {
+          "pid": 13245,
+          "name": "chrome",
+          "rss_kb": 120856,
+          "pss_kb": 28690
+        },
+        {
+          "pid": 13262,
+          "name": "chrome",
+          "rss_kb": 100856,
+          "pss_kb": 17137
+        },
+        {
+          "pid": 13268,
+          "name": "chrome",
+          "rss_kb": 106560,
+          "pss_kb": 20453
+        },
+        {
+          "pid": 13280,
+          "name": "chrome",
+          "rss_kb": 106556,
+          "pss_kb": 18908
+        },
+        {
+          "pid": 13286,
+          "name": "chrome",
+          "rss_kb": 100816,
+          "pss_kb": 17149
+        },
+        {
+          "pid": 13289,
+          "name": "chrome",
+          "rss_kb": 106492,
+          "pss_kb": 20440
+        },
+        {
+          "pid": 13302,
+          "name": "chrome",
+          "rss_kb": 106508,
+          "pss_kb": 18930
+        },
+        {
+          "pid": 13341,
+          "name": "chrome",
+          "rss_kb": 69428,
+          "pss_kb": 11398
+        }
+      ],
+      "web_processes": 0
+    },
+    {
+      "rss_kb": 1715192,
+      "pss_kb": 466151,
+      "shell_rss_kb": 268264,
+      "processes": [
+        {
+          "pid": 14613,
+          "name": "chrome",
+          "rss_kb": 268264,
+          "pss_kb": 141262
+        },
+        {
+          "pid": 14619,
+          "name": "chrome",
+          "rss_kb": 63560,
+          "pss_kb": 16466
+        },
+        {
+          "pid": 14620,
+          "name": "chrome",
+          "rss_kb": 63920,
+          "pss_kb": 10801
+        },
+        {
+          "pid": 14646,
+          "name": "chrome",
+          "rss_kb": 105440,
+          "pss_kb": 33791
+        },
+        {
+          "pid": 14643,
+          "name": "chrome",
+          "rss_kb": 168068,
+          "pss_kb": 77292
+        },
+        {
+          "pid": 14647,
+          "name": "chrome",
+          "rss_kb": 51948,
+          "pss_kb": 7056
+        },
+        {
+          "pid": 14686,
+          "name": "chrome",
+          "rss_kb": 106444,
+          "pss_kb": 18456
+        },
+        {
+          "pid": 14691,
+          "name": "chrome",
+          "rss_kb": 121064,
+          "pss_kb": 28678
+        },
+        {
+          "pid": 14701,
+          "name": "chrome",
+          "rss_kb": 100912,
+          "pss_kb": 16735
+        },
+        {
+          "pid": 14708,
+          "name": "chrome",
+          "rss_kb": 106168,
+          "pss_kb": 19942
+        },
+        {
+          "pid": 14724,
+          "name": "chrome",
+          "rss_kb": 106440,
+          "pss_kb": 18477
+        },
+        {
+          "pid": 14727,
+          "name": "chrome",
+          "rss_kb": 100748,
+          "pss_kb": 16659
+        },
+        {
+          "pid": 14737,
+          "name": "chrome",
+          "rss_kb": 106288,
+          "pss_kb": 20010
+        },
+        {
+          "pid": 14746,
+          "name": "chrome",
+          "rss_kb": 106532,
+          "pss_kb": 18524
+        },
+        {
+          "pid": 14787,
+          "name": "chrome",
+          "rss_kb": 69796,
+          "pss_kb": 11019
+        },
+        {
+          "pid": 14796,
+          "name": "chrome",
+          "rss_kb": 69600,
+          "pss_kb": 10983
+        }
+      ],
+      "web_processes": 0
+    }
+  ]
+}

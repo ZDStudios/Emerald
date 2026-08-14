@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>A long article — Emerald bench fixture</title>
+<style>
+  body{font-family:Georgia,serif;max-width:none;margin:0;padding:48px;line-height:1.4;background:#fff;color:#111}
+  nav{display:flex;gap:16px;margin-bottom:32px}
+  nav a{font-size:13px}
+  article{max-width:none}
+  p{margin:0 0 14px}
+</style></head>
+<body>
+<!-- Text-heavy, deliberately badly typeset: no measure limit, tight leading,
+     justified body. This is the fixture for the Reading settings — applying
+     Emerald's spacing to this page should be visibly different. -->
+<nav><a href="#a">Home</a><a href="#b">Sections</a><a href="#c">Archive</a><a href="#d">About</a></nav>
+<article>
+<h1>On the difficulty of measuring a browser</h1>
+<p style="text-align:justify">Resident set size is the number everyone quotes and the number that means least. It counts every physical page a process has mapped, including pages shared with every other process in the same tree, which for a browser means the engine library is counted once per renderer.</p>
+<p style="text-align:justify">Proportional set size divides each shared page by the number of processes sharing it. It is slower to collect and it is the honest number. A browser that reports RSS per tab and compares it to another browser's total is not comparing anything.</p>
+<p style="text-align:justify">The second problem is the state you measure in. A browser that has just started has not yet allocated its caches; one that has been open for six hours has. Neither is wrong, but only one of them is what you experience, and it is usually not the one in the marketing material.</p>
+<p style="text-align:justify">The third problem is that memory is not the cost people feel. What people feel is the machine becoming unresponsive, which is a function of pressure, swap, and how much the browser insists on doing while you are not looking at it. A browser can hold a lot of memory politely, and it can hold very little rudely.</p>
+<p style="text-align:justify">All of which is a long way of saying: publish the method, publish the raw numbers, and say which state you measured in. Anything else is a claim, not a measurement.</p>
+</article>
+<script>
+  // A little work on load, so this is not an unrealistically inert page.
+  const t = performance.now();
+  let n = 0; for (let i = 0; i < 2e5; i++) n += Math.sqrt(i);
+  document.title = document.title + ` (${(performance.now()-t).toFixed(0)}ms)`;
+</script>
+</body></html>

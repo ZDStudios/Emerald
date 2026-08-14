@@ -1,0 +1,915 @@
+{
+  "$defs": {
+    "Accent": {
+      "description": "Accent hue. Semantics are fixed regardless of choice: the accent means\n\"active or yours\", red means destructive, yellow means needs-attention.",
+      "enum": [
+        "green",
+        "teal",
+        "sapphire",
+        "lavender",
+        "mauve",
+        "peach",
+        "rosewater"
+      ],
+      "type": "string"
+    },
+    "Appearance": {
+      "additionalProperties": false,
+      "description": "Colour, type and chrome layout.",
+      "properties": {
+        "accent": {
+          "$ref": "#/$defs/Accent",
+          "default": "green",
+          "description": "Which Catppuccin accent carries \"this is active / this is yours\"."
+        },
+        "collapsed_sidebar_favicons": {
+          "default": true,
+          "description": "Show the favicon strip when the sidebar is collapsed.",
+          "type": "boolean"
+        },
+        "density": {
+          "$ref": "#/$defs/Density",
+          "default": "comfortable",
+          "description": "Vertical rhythm of the chrome."
+        },
+        "tab_layout": {
+          "$ref": "#/$defs/TabLayout",
+          "default": "sidebar",
+          "description": "Where tabs live."
+        },
+        "theme": {
+          "$ref": "#/$defs/Theme",
+          "default": "mocha",
+          "description": "Base palette. Emerald ships Catppuccin Mocha and a light counterpart."
+        },
+        "ui_font_size_pct": {
+          "default": 100,
+          "description": "Chrome text size as a percentage of the 13px base.",
+          "format": "uint16",
+          "maximum": 200,
+          "minimum": 75,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "Attention": {
+      "additionalProperties": false,
+      "description": "Tab decluttering, focus mode, and motion budget.",
+      "properties": {
+        "animation_speed": {
+          "default": 1.0,
+          "description": "Multiplier on every animation duration in the chrome. `0.0` removes\nanimation entirely (transitions become instant, nothing is dropped).\n`1.0` is the designed speed.",
+          "format": "float",
+          "maximum": 3.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        "auto_archive_idle_minutes": {
+          "default": 0,
+          "description": "Move a tab out of the strip and into the Archive after this many\nminutes without focus. Archived tabs are one keystroke away in the\ncommand palette and are never silently lost. `0` disables.",
+          "format": "uint16",
+          "maximum": 10080,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "badges": {
+          "$ref": "#/$defs/BadgeStyle",
+          "default": "dot",
+          "description": "How much unread state Emerald is willing to show you."
+        },
+        "declutter_toolbar": {
+          "default": false,
+          "description": "Collapse the toolbar to address bar + active tab only. Everything else\nmoves into the command palette.",
+          "type": "boolean"
+        },
+        "focus_dim_opacity": {
+          "default": 0.3499999940395355,
+          "description": "Opacity applied to de-emphasised chrome in `FocusMode::Dim`.\n`0.0` is invisible, `1.0` is unchanged.",
+          "format": "float",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        "focus_mode": {
+          "$ref": "#/$defs/FocusMode",
+          "default": "off",
+          "description": "What \"focus mode\" does to everything that is not the active tab."
+        },
+        "hide_tabs_in_focus": {
+          "default": false,
+          "description": "Hide the tab strip / sidebar entirely while focus mode is on.",
+          "type": "boolean"
+        },
+        "max_live_tabs": {
+          "default": 6,
+          "description": "Hard ceiling on how many tabs hold a live web process at once. When a\nnew tab pushes the count past this, the least-recently-used unpinned\ntab is discarded: its process is terminated and its memory returned to\nthe OS. The tab stays in the strip and reloads on click.",
+          "format": "uint16",
+          "maximum": 64,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "reduce_page_motion": {
+          "default": false,
+          "description": "Also advertise `prefers-reduced-motion: reduce` to every page, so sites\nthat respect it calm down too.",
+          "type": "boolean"
+        },
+        "show_archive_count": {
+          "default": true,
+          "description": "Show a single unobtrusive count of archived tabs rather than listing\nthem. Off means the archive is silent until you open it.",
+          "type": "boolean"
+        },
+        "suspend_idle_minutes": {
+          "default": 20,
+          "description": "Discard a tab's web process after this many minutes without focus.\n`0` disables time-based discarding (the `max_live_tabs` cap still\napplies). This is the only clock-driven policy in Emerald; see\n`docs/architecture.md` §6 for the one background timer it justifies.",
+          "format": "uint16",
+          "maximum": 1440,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "AutoplayPolicy": {
+      "description": "Autoplay handling.",
+      "oneOf": [
+        {
+          "const": "block_all",
+          "description": "No `<video>` or `<audio>` starts without a click. The default.",
+          "type": "string"
+        },
+        {
+          "const": "block_audio",
+          "description": "Muted video may autoplay; anything with sound may not.",
+          "type": "string"
+        },
+        {
+          "const": "allow",
+          "description": "Let pages do as they like.",
+          "type": "string"
+        }
+      ]
+    },
+    "BadgeStyle": {
+      "description": "Notification badge treatment.",
+      "oneOf": [
+        {
+          "const": "off",
+          "description": "No badges at all.",
+          "type": "string"
+        },
+        {
+          "const": "dot",
+          "description": "A 4px dot. No number, no colour change, no motion.",
+          "type": "string"
+        },
+        {
+          "const": "count",
+          "description": "A numeric count.",
+          "type": "string"
+        }
+      ]
+    },
+    "Density": {
+      "description": "Chrome density.",
+      "enum": [
+        "compact",
+        "comfortable",
+        "roomy"
+      ],
+      "type": "string"
+    },
+    "DraftRestore": {
+      "description": "Draft recovery behaviour.",
+      "oneOf": [
+        {
+          "const": "auto",
+          "description": "Refill the form immediately and say so in a dismissible bar.",
+          "type": "string"
+        },
+        {
+          "const": "ask",
+          "description": "Offer a \"restore what you were writing\" bar and wait.",
+          "type": "string"
+        },
+        {
+          "const": "off",
+          "description": "Keep saving drafts but never offer them; recover manually from the\ncommand palette.",
+          "type": "string"
+        }
+      ]
+    },
+    "FocusAccess": {
+      "additionalProperties": false,
+      "description": "The Focus & Access panel. Reachable from anywhere with `Ctrl/Cmd+Shift+A`,\nor from the command palette in one keystroke plus one selection.",
+      "properties": {
+        "attention": {
+          "$ref": "#/$defs/Attention",
+          "default": {
+            "animation_speed": 1.0,
+            "auto_archive_idle_minutes": 0,
+            "badges": "dot",
+            "declutter_toolbar": false,
+            "focus_dim_opacity": 0.3499999940395355,
+            "focus_mode": "off",
+            "hide_tabs_in_focus": false,
+            "max_live_tabs": 6,
+            "reduce_page_motion": false,
+            "show_archive_count": true,
+            "suspend_idle_minutes": 20
+          },
+          "description": "Decluttering, focus mode, motion. Written with ADHD in mind."
+        },
+        "input": {
+          "$ref": "#/$defs/InputAssist",
+          "default": {
+            "autosave_drafts": true,
+            "autosave_interval_ms": 1500,
+            "draft_restore": "ask",
+            "draft_retention_days": 14,
+            "draft_skip_sensitive": true,
+            "enlarge_form_fields": false,
+            "field_font_size_pct": 100,
+            "force_spellcheck": false,
+            "guard_enter_submit": false,
+            "min_target_px": 44,
+            "voice_input": false,
+            "voice_input_shortcut": "CmdOrCtrl+Shift+V"
+          },
+          "description": "Targets, dictation and never losing typed text. Written with\ndysgraphia in mind."
+        },
+        "predictability": {
+          "$ref": "#/$defs/Predictability",
+          "default": {
+            "autoplay": "block_all",
+            "confirm_destructive": true,
+            "no_layout_shift": true,
+            "sensory_profile": "standard",
+            "show_blocked_media_placeholder": true,
+            "stable_tab_order": true,
+            "suppress_popups": true,
+            "transitions": "fade"
+          },
+          "description": "Low-surprise, predictable UI. Written with autism in mind."
+        },
+        "reading": {
+          "$ref": "#/$defs/Reading",
+          "default": {
+            "apply_to_all_pages": false,
+            "dim_surrounding_text": false,
+            "font": "atkinson",
+            "font_size_pct": 100,
+            "force_start_align": true,
+            "hyphenate": false,
+            "letter_spacing_em": 0.0,
+            "line_height": 1.600000023841858,
+            "max_line_length_ch": 68,
+            "paragraph_spacing_em": 1.0,
+            "ruler": "off",
+            "ruler_color": "auto",
+            "ruler_follows": "pointer",
+            "ruler_height_px": 32,
+            "ruler_opacity": 0.14000000059604645,
+            "word_spacing_em": 0.0
+          },
+          "description": "Typography and reading aids. Written with dyslexia in mind."
+        }
+      },
+      "type": "object"
+    },
+    "FocusMode": {
+      "description": "How aggressively Emerald removes everything that is not the active tab.",
+      "oneOf": [
+        {
+          "const": "off",
+          "description": "Normal chrome.",
+          "type": "string"
+        },
+        {
+          "const": "dim",
+          "description": "Inactive tabs, sidebar and toolbar affordances fade to\n`focus_dim_opacity`; they stay clickable.",
+          "type": "string"
+        },
+        {
+          "const": "solo",
+          "description": "One thing at a time: everything except the active tab's content and the\naddress bar is removed from the layout. Tabs remain reachable via the\ncommand palette.",
+          "type": "string"
+        }
+      ]
+    },
+    "InputAssist": {
+      "additionalProperties": false,
+      "description": "Making text entry survivable: bigger targets, dictation, and never losing\nwhat was typed.",
+      "properties": {
+        "autosave_drafts": {
+          "default": true,
+          "description": "Keep a local copy of everything typed into web forms, so a crash, a\nmisclick, or a session expiry never costs you the text.",
+          "type": "boolean"
+        },
+        "autosave_interval_ms": {
+          "default": 1500,
+          "description": "How often a changed field is written to the draft store.",
+          "format": "uint32",
+          "maximum": 60000,
+          "minimum": 250,
+          "type": "integer"
+        },
+        "draft_restore": {
+          "$ref": "#/$defs/DraftRestore",
+          "default": "ask",
+          "description": "What Emerald does when it finds a draft for a form you have just opened."
+        },
+        "draft_retention_days": {
+          "default": 14,
+          "description": "Drafts older than this are deleted. `0` keeps them until you clear them.",
+          "format": "uint16",
+          "maximum": 365,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "draft_skip_sensitive": {
+          "default": true,
+          "description": "Exclude fields Emerald believes are sensitive (password, one-time code,\ncard number, and anything with `autocomplete=\"off\"`) from the draft\nstore. Strongly recommended; on by default.",
+          "type": "boolean"
+        },
+        "enlarge_form_fields": {
+          "default": false,
+          "description": "Also grow the *visible* size of inputs, textareas and buttons. This one\ndoes change page layout, so it is separate from `min_target_px`.",
+          "type": "boolean"
+        },
+        "field_font_size_pct": {
+          "default": 100,
+          "description": "Font size inside form fields, as a percentage. Under 100% is not\noffered — shrinking form text is never the accessible choice.",
+          "format": "uint16",
+          "maximum": 250,
+          "minimum": 100,
+          "type": "integer"
+        },
+        "force_spellcheck": {
+          "default": false,
+          "description": "Turn the renderer's spellchecker on everywhere, including fields where\nthe site disabled it.",
+          "type": "boolean"
+        },
+        "guard_enter_submit": {
+          "default": false,
+          "description": "Never submit a form on plain Enter in a single-line field unless the\nfield is the only one in the form. Stops half-written text being sent.",
+          "type": "boolean"
+        },
+        "min_target_px": {
+          "default": 44,
+          "description": "Minimum hit area for form controls and links, in CSS pixels. Emerald\ngrows the clickable box without moving the visual box where it can, so\npages do not reflow. WCAG 2.2 AA asks for 24; AAA asks for 44.",
+          "format": "uint16",
+          "maximum": 96,
+          "minimum": 20,
+          "type": "integer"
+        },
+        "voice_input": {
+          "default": false,
+          "description": "Show a dictation affordance on focused text inputs. Uses the platform\nspeech API through the page's own `SpeechRecognition` where available;\nEmerald ships no speech model and sends no audio anywhere itself.\nSee `docs/architecture.md` §7 for what this does and does not do.",
+          "type": "boolean"
+        },
+        "voice_input_shortcut": {
+          "default": "CmdOrCtrl+Shift+V",
+          "description": "Keyboard shortcut that starts/stops dictation in the focused field.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Performance": {
+      "additionalProperties": false,
+      "description": "Memory and process behaviour.",
+      "properties": {
+        "allow_page_prefetch": {
+          "default": false,
+          "description": "Allow pages to use `<link rel=prefetch/preconnect>`. Off means Emerald\nmakes no network request you did not initiate.",
+          "type": "boolean"
+        },
+        "hardware_acceleration": {
+          "default": true,
+          "description": "Let the renderer use the GPU. Turning this off lowers memory on some\nsystems at the cost of scrolling smoothness.",
+          "type": "boolean"
+        },
+        "memory_budget_mb": {
+          "default": 0,
+          "description": "Soft ceiling on total resident memory across Emerald and all of its web\nprocesses, in MiB. When exceeded, tabs are discarded LRU-first until it\nis back under. `0` disables the check and stops the sampler entirely.",
+          "format": "uint32",
+          "maximum": 65536,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "restore_tabs_discarded": {
+          "default": true,
+          "description": "Restore tabs from the previous session as *discarded* placeholders\nrather than loading them. Startup stays flat regardless of how many\ntabs were open.",
+          "type": "boolean"
+        },
+        "sampler_interval_s": {
+          "default": 30,
+          "description": "How often the memory budget is checked, in seconds. This is the only\nrecurring timer Emerald runs, and it does not start unless\n`memory_budget_mb > 0` or a time-based tab policy is enabled.",
+          "format": "uint32",
+          "maximum": 600,
+          "minimum": 5,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "Predictability": {
+      "additionalProperties": false,
+      "description": "Low-surprise behaviour: nothing moves, plays, or reorders without asking.",
+      "properties": {
+        "autoplay": {
+          "$ref": "#/$defs/AutoplayPolicy",
+          "default": "block_all",
+          "description": "What happens when a page tries to start playing media on load.\nEmerald defaults to blocking everything and showing an inline\nplay affordance instead."
+        },
+        "confirm_destructive": {
+          "default": true,
+          "description": "Ask before anything irreversible: closing a window with more than one\ntab, clearing history, discarding a recovered draft.",
+          "type": "boolean"
+        },
+        "no_layout_shift": {
+          "default": true,
+          "description": "Reserve space for images, iframes and ads before they load, and refuse\nlate-arriving elements the ability to push content that is already on\nscreen. Text you have started reading will not move.",
+          "type": "boolean"
+        },
+        "sensory_profile": {
+          "$ref": "#/$defs/SensoryProfile",
+          "default": "standard",
+          "description": "Colour treatment. Affects saturation and contrast only — never hue\nsemantics, so a warning is the same colour family in every profile."
+        },
+        "show_blocked_media_placeholder": {
+          "default": true,
+          "description": "Show a short static notice where blocked media would have played,\ninstead of nothing at all. Off means blocked media is invisible.",
+          "type": "boolean"
+        },
+        "stable_tab_order": {
+          "default": true,
+          "description": "Never reorder tabs automatically — no \"most recently used\" shuffling,\nno promoting a tab because it made noise. New tabs always append.",
+          "type": "boolean"
+        },
+        "suppress_popups": {
+          "default": true,
+          "description": "Open new links in the current tab unless explicitly middle-clicked.\nStops pages spawning tabs you did not ask for.",
+          "type": "boolean"
+        },
+        "transitions": {
+          "$ref": "#/$defs/TransitionStyle",
+          "default": "fade",
+          "description": "How chrome transitions render. `Instant` is honoured even when\n`animation_speed` is above zero."
+        }
+      },
+      "type": "object"
+    },
+    "Privacy": {
+      "additionalProperties": false,
+      "description": "What leaves the machine. The short answer is \"nothing\".",
+      "properties": {
+        "block_third_party_cookies": {
+          "default": true,
+          "description": "Block third-party cookies.",
+          "type": "boolean"
+        },
+        "clear_site_data_on_exit": {
+          "default": false,
+          "description": "Clear cookies and site data for non-pinned tabs at exit.",
+          "type": "boolean"
+        },
+        "custom_search_url": {
+          "default": "",
+          "description": "Custom search URL with `{q}` as the query placeholder. Used when\n`search_engine` is `Custom`.",
+          "type": "string"
+        },
+        "global_privacy_control": {
+          "default": true,
+          "description": "Send `Do Not Track` and `Sec-GPC`.",
+          "type": "boolean"
+        },
+        "search_engine": {
+          "$ref": "#/$defs/SearchEngine",
+          "default": "duck_duck_go",
+          "description": "Search engine used for non-URL input in the address bar."
+        }
+      },
+      "type": "object"
+    },
+    "Reading": {
+      "additionalProperties": false,
+      "description": "Typography, spacing and reading aids. Applies to reader mode always, and to\nevery page when `apply_to_all_pages` is on.",
+      "properties": {
+        "apply_to_all_pages": {
+          "default": false,
+          "description": "Apply this whole section to ordinary web pages, not just reader mode.\nEmerald overrides page fonts and spacing with `!important` rules; some\nicon-font sites will show tofu. Off by default for that reason.",
+          "type": "boolean"
+        },
+        "dim_surrounding_text": {
+          "default": false,
+          "description": "Dim everything except the paragraph under the ruler.",
+          "type": "boolean"
+        },
+        "font": {
+          "$ref": "#/$defs/ReadingFont",
+          "default": "atkinson",
+          "description": "Typeface used for body text."
+        },
+        "font_size_pct": {
+          "default": 100,
+          "description": "Body text size as a percentage of Emerald's 16px base.",
+          "format": "uint16",
+          "maximum": 300,
+          "minimum": 75,
+          "type": "integer"
+        },
+        "force_start_align": {
+          "default": true,
+          "description": "Force left-aligned (start-aligned) text. Justified text creates\nuneven word spacing, which is a known problem for dyslexic readers,\nso Emerald defaults to overriding it.",
+          "type": "boolean"
+        },
+        "hyphenate": {
+          "default": false,
+          "description": "Allow the renderer to hyphenate, which keeps ragged edges shorter\nwithout justification's rivers of whitespace.",
+          "type": "boolean"
+        },
+        "letter_spacing_em": {
+          "default": 0.0,
+          "description": "Extra space between letters, in `em`. WCAG 1.4.12 asks for at least\n`0.12` to be *possible*; Emerald allows well past it.",
+          "format": "float",
+          "maximum": 0.5,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        "line_height": {
+          "default": 1.600000023841858,
+          "description": "Line box height as a multiple of font size. WCAG 1.4.12 floor is `1.5`.",
+          "format": "float",
+          "maximum": 3.0,
+          "minimum": 1.0,
+          "type": "number"
+        },
+        "max_line_length_ch": {
+          "default": 68,
+          "description": "Maximum measure in `ch` units. Long lines are the single biggest\ntracking problem for many dyslexic readers.",
+          "format": "uint16",
+          "maximum": 140,
+          "minimum": 30,
+          "type": "integer"
+        },
+        "paragraph_spacing_em": {
+          "default": 1.0,
+          "description": "Space after each paragraph, in `em`. WCAG 1.4.12 floor is `2.0` times\nthe font size.",
+          "format": "float",
+          "maximum": 4.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        "ruler": {
+          "$ref": "#/$defs/RulerMode",
+          "default": "off",
+          "description": "The reading-line highlight."
+        },
+        "ruler_color": {
+          "$ref": "#/$defs/RulerColor",
+          "default": "auto",
+          "description": "Ruler accent. `Auto` derives it from the current theme accent."
+        },
+        "ruler_follows": {
+          "$ref": "#/$defs/RulerFollows",
+          "default": "pointer",
+          "description": "What moves the ruler."
+        },
+        "ruler_height_px": {
+          "default": 32,
+          "description": "Height of the ruler band, in CSS pixels.",
+          "format": "uint16",
+          "maximum": 200,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "ruler_opacity": {
+          "default": 0.14000000059604645,
+          "description": "Ruler opacity. Kept low by default so it guides rather than shouts.",
+          "format": "float",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        "word_spacing_em": {
+          "default": 0.0,
+          "description": "Extra space between words, in `em`. WCAG 1.4.12 floor is `0.16`.",
+          "format": "float",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "ReadingFont": {
+      "description": "Body typeface for reader mode and (optionally) all pages.",
+      "oneOf": [
+        {
+          "const": "site_preference",
+          "description": "Leave the page's own font alone.",
+          "type": "string"
+        },
+        {
+          "const": "system",
+          "description": "The OS UI serif/sans stack.",
+          "type": "string"
+        },
+        {
+          "const": "atkinson",
+          "description": "Atkinson Hyperlegible — designed by the Braille Institute for low\nvision; unusually distinct letterforms. Emerald's default because it\nhelps a wide range of readers without looking unusual.",
+          "type": "string"
+        },
+        {
+          "const": "open_dyslexic",
+          "description": "OpenDyslexic — weighted bottoms to anchor letter orientation.\nDivisive and heavily debated in the research; offered because plenty\nof people report it helps them, which is reason enough.",
+          "type": "string"
+        },
+        {
+          "const": "mono",
+          "description": "JetBrains Mono — fixed pitch. Some readers track better on a grid.",
+          "type": "string"
+        }
+      ]
+    },
+    "RulerColor": {
+      "description": "Ruler colour.",
+      "oneOf": [
+        {
+          "enum": [
+            "yellow",
+            "green",
+            "blue",
+            "pink"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "auto",
+          "description": "Follow the theme accent.",
+          "type": "string"
+        },
+        {
+          "const": "neutral",
+          "description": "Neutral grey — no chromatic tint at all.",
+          "type": "string"
+        }
+      ]
+    },
+    "RulerFollows": {
+      "description": "What drives the ruler's position.",
+      "oneOf": [
+        {
+          "const": "pointer",
+          "description": "The pointer's vertical position.",
+          "type": "string"
+        },
+        {
+          "const": "keyboard",
+          "description": "Up/Down arrows move it a line at a time; the pointer is ignored.",
+          "type": "string"
+        },
+        {
+          "const": "both",
+          "description": "Either input moves it.",
+          "type": "string"
+        }
+      ]
+    },
+    "RulerMode": {
+      "description": "Reading-line highlight style.",
+      "oneOf": [
+        {
+          "const": "off",
+          "description": "No ruler.",
+          "type": "string"
+        },
+        {
+          "const": "line",
+          "description": "A thin underline sitting on the baseline being read.",
+          "type": "string"
+        },
+        {
+          "const": "band",
+          "description": "A translucent band covering the current line.",
+          "type": "string"
+        },
+        {
+          "const": "spotlight",
+          "description": "The current line stays lit; everything above and below is dimmed.",
+          "type": "string"
+        }
+      ]
+    },
+    "SearchEngine": {
+      "description": "Address-bar search provider.",
+      "oneOf": [
+        {
+          "enum": [
+            "duck_duck_go",
+            "startpage",
+            "brave",
+            "google"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "custom",
+          "description": "Use `custom_search_url`.",
+          "type": "string"
+        }
+      ]
+    },
+    "SensoryProfile": {
+      "description": "Colour intensity profile. Hue meaning is constant across all three.",
+      "oneOf": [
+        {
+          "const": "standard",
+          "description": "Catppuccin Mocha as designed.",
+          "type": "string"
+        },
+        {
+          "const": "muted",
+          "description": "Accents desaturated toward the base; surfaces flattened. For when\nsaturated colour is itself the problem.",
+          "type": "string"
+        },
+        {
+          "const": "high_contrast",
+          "description": "Raised text/background contrast beyond WCAG AAA, heavier focus rings.",
+          "type": "string"
+        }
+      ]
+    },
+    "TabLayout": {
+      "description": "Tab strip placement.",
+      "oneOf": [
+        {
+          "const": "sidebar",
+          "description": "Vertical sidebar, Zen/Arc style. Emerald's default: titles stay\nreadable no matter how many tabs are open.",
+          "type": "string"
+        },
+        {
+          "const": "top",
+          "description": "Horizontal strip along the top, Chrome style.",
+          "type": "string"
+        },
+        {
+          "const": "hidden",
+          "description": "No visible tab strip. Tabs are reached through the command palette.",
+          "type": "string"
+        }
+      ]
+    },
+    "Theme": {
+      "description": "Base palette.",
+      "oneOf": [
+        {
+          "const": "mocha",
+          "description": "Catppuccin Mocha. Emerald's designed-for palette.",
+          "type": "string"
+        },
+        {
+          "const": "latte",
+          "description": "Catppuccin Latte, for bright rooms.",
+          "type": "string"
+        },
+        {
+          "const": "system",
+          "description": "Follow the OS.",
+          "type": "string"
+        }
+      ]
+    },
+    "TransitionStyle": {
+      "description": "Chrome transition style.",
+      "oneOf": [
+        {
+          "const": "instant",
+          "description": "State changes are immediate. No interpolation of any kind.",
+          "type": "string"
+        },
+        {
+          "const": "fade",
+          "description": "Opacity only. Nothing translates, scales, or bounces.",
+          "type": "string"
+        },
+        {
+          "const": "slide",
+          "description": "Opacity plus a short translation on panels that slide in from an edge.",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Emerald's complete persisted configuration.",
+  "properties": {
+    "appearance": {
+      "$ref": "#/$defs/Appearance",
+      "default": {
+        "accent": "green",
+        "collapsed_sidebar_favicons": true,
+        "density": "comfortable",
+        "tab_layout": "sidebar",
+        "theme": "mocha",
+        "ui_font_size_pct": 100
+      },
+      "description": "Colour, type and chrome layout."
+    },
+    "focus_access": {
+      "$ref": "#/$defs/FocusAccess",
+      "default": {
+        "attention": {
+          "animation_speed": 1.0,
+          "auto_archive_idle_minutes": 0,
+          "badges": "dot",
+          "declutter_toolbar": false,
+          "focus_dim_opacity": 0.3499999940395355,
+          "focus_mode": "off",
+          "hide_tabs_in_focus": false,
+          "max_live_tabs": 6,
+          "reduce_page_motion": false,
+          "show_archive_count": true,
+          "suspend_idle_minutes": 20
+        },
+        "input": {
+          "autosave_drafts": true,
+          "autosave_interval_ms": 1500,
+          "draft_restore": "ask",
+          "draft_retention_days": 14,
+          "draft_skip_sensitive": true,
+          "enlarge_form_fields": false,
+          "field_font_size_pct": 100,
+          "force_spellcheck": false,
+          "guard_enter_submit": false,
+          "min_target_px": 44,
+          "voice_input": false,
+          "voice_input_shortcut": "CmdOrCtrl+Shift+V"
+        },
+        "predictability": {
+          "autoplay": "block_all",
+          "confirm_destructive": true,
+          "no_layout_shift": true,
+          "sensory_profile": "standard",
+          "show_blocked_media_placeholder": true,
+          "stable_tab_order": true,
+          "suppress_popups": true,
+          "transitions": "fade"
+        },
+        "reading": {
+          "apply_to_all_pages": false,
+          "dim_surrounding_text": false,
+          "font": "atkinson",
+          "font_size_pct": 100,
+          "force_start_align": true,
+          "hyphenate": false,
+          "letter_spacing_em": 0.0,
+          "line_height": 1.600000023841858,
+          "max_line_length_ch": 68,
+          "paragraph_spacing_em": 1.0,
+          "ruler": "off",
+          "ruler_color": "auto",
+          "ruler_follows": "pointer",
+          "ruler_height_px": 32,
+          "ruler_opacity": 0.14000000059604645,
+          "word_spacing_em": 0.0
+        }
+      },
+      "description": "The Focus & Access panel: attention, predictability, reading, input."
+    },
+    "performance": {
+      "$ref": "#/$defs/Performance",
+      "default": {
+        "allow_page_prefetch": false,
+        "hardware_acceleration": true,
+        "memory_budget_mb": 0,
+        "restore_tabs_discarded": true,
+        "sampler_interval_s": 30
+      },
+      "description": "Memory and process behaviour."
+    },
+    "privacy": {
+      "$ref": "#/$defs/Privacy",
+      "default": {
+        "block_third_party_cookies": true,
+        "clear_site_data_on_exit": false,
+        "custom_search_url": "",
+        "global_privacy_control": true,
+        "search_engine": "duck_duck_go"
+      },
+      "description": "Data that leaves the machine, and data that stays on it."
+    },
+    "version": {
+      "default": 1,
+      "description": "Schema version of this file. Written by Emerald; do not edit by hand.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "title": "Settings",
+  "type": "object"
+}

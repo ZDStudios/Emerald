@@ -1,0 +1,18 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "pages",
+  "description": "What a rendered web page may ask Emerald's core to do. Six commands: five write-only reports about the page's own state, plus a relay for the keyboard chords Emerald owns (validated against a fixed allowlist in Rust), and nothing else — no settings, no tabs, no history, no filesystem, no shell. Every page webview is labelled `tab:<id>` and matched by that glob. The commands themselves derive the calling page's origin from `Webview::url()` in Rust and never from anything the page claims, so one site cannot read or overwrite another site's drafts.",
+  "local": true,
+  "remote": {
+    "urls": ["http://*", "http://*/*", "https://*", "https://*/*"]
+  },
+  "webviews": ["tab:*"],
+  "permissions": [
+    "allow-page-draft",
+    "allow-page-drafts",
+    "allow-page-clear-drafts",
+    "allow-page-scroll",
+    "allow-page-favicon",
+    "allow-page-shortcut"
+  ]
+}

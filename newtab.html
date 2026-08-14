@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New tab</title>
+    <style>
+      /* Deliberately standalone: no bundle, no framework, no fetch. The new-tab
+         page is rendered in a page webview like any website, so it is subject to
+         the same discard policy — and it should cost approximately nothing to
+         open. Two colours, one mark, no clock, no widgets, no suggestions.
+
+         An empty new-tab page is a design position, not an unfinished one: it is
+         the one screen in a browser guaranteed to be seen dozens of times a day,
+         and it is the last place that should be competing for attention. */
+      :root {
+        color-scheme: dark;
+        --base: #1e1e2e;
+        --edge: #313244;
+        --dim: #6c7086;
+      }
+      @media (prefers-color-scheme: light) {
+        :root { --base: #eff1f5; --edge: #ccd0da; --dim: #8c8fa1; }
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        background: var(--base);
+      }
+      body {
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 20px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        color: var(--dim);
+        font-size: 13px;
+      }
+      svg { color: var(--edge); }
+      p { margin: 0; }
+      kbd {
+        display: inline-block;
+        padding: 1px 5px;
+        border: 1px solid var(--edge);
+        border-radius: 4px;
+        font: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- The app mark at icon weight, matching src/icons/index.tsx exactly. -->
+    <svg
+      width="56"
+      height="56"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z" />
+      <path d="M8.5 8.5h7l2 3.5-2 3.5h-7l-2-3.5z" />
+    </svg>
+    <p><kbd>Ctrl</kbd>/<kbd>⌘</kbd> <kbd>K</kbd> to search everything</p>
+  </body>
+</html>

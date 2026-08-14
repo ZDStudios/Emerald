@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en" data-theme="mocha" data-accent="green">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Emerald</title>
+  </head>
+  <body>
+    <!-- Painted before the bundle parses, so a cold start shows Emerald's own
+         ground colour rather than a white flash. This is the same
+         `--surface` value tokens.css defines; it is duplicated here because
+         the stylesheet has not loaded yet at this point. -->
+    <style>
+      html { background: #1e1e2e; }
+    </style>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

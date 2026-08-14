@@ -1,0 +1,62 @@
+[package]
+name = "emerald"
+version = "0.1.0"
+description = "Emerald — a calm, low-footprint web browser"
+authors = ["Emerald contributors"]
+edition = "2021"
+rust-version = "1.77"
+license = "MPL-2.0"
+default-run = "emerald"
+
+[lib]
+name = "emerald_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "emerald"
+path = "src/main.rs"
+
+# Emits schema/focus-access.schema.json and src/lib/settings.gen.ts from the
+# Rust settings structs, so the schema deliverable can never drift from the code.
+[[bin]]
+name = "gen-schema"
+path = "src/bin/gen_schema.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# `unstable` unlocks multi-webview windows (Window::add_child). Emerald needs
+# them: the chrome is one webview and every tab is a sibling webview inside the
+# same OS window. See docs/architecture.md §3.
+tauri = { version = "2", features = ["unstable"] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+schemars = "1"
+parking_lot = "0.12"
+url = "2"
+
+# Deliberately absent: no process-info crate. `metrics.rs` reads /proc directly
+# on Linux and shells out to `ps` on macOS, which is ~80 lines and no supply
+# chain. A browser that argues for frugality should hold itself to it.
+
+# Linux only, and not optional: Tauri packs every child webview into the
+# window's `GtkBox`, where webviews stack vertically and `set_position` is a
+# no-op. `runtime::gtk_layout` reparents them into a `GtkFixed` so they can
+# actually be positioned. Versions must match Tauri's own so the GTK types
+# unify. See docs/architecture.md §3.1.
+[target.'cfg(target_os = "linux")'.dependencies]
+gtk = "0.18"
+webkit2gtk = "2.0"
+
+[features]
+# By default Tauri ships a devtools-enabled build in debug only.
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"   # Emerald is I/O- and compositor-bound, not compute-bound.
+panic = "abort"
+strip = true

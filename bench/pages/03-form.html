@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>A long form — Emerald bench fixture</title>
+<style>body{font-family:system-ui;margin:0;padding:40px;background:#fff;color:#111}
+label{display:block;margin:14px 0 4px;font-size:13px}
+input,textarea{width:420px;font:inherit;padding:2px}
+textarea{height:120px}
+button{margin-top:16px;padding:2px 8px;font:inherit}</style></head>
+<body>
+<!-- Fixture for Input: type into these, then discard the tab from the sidebar
+     and reopen it. Everything except the password and the card number should
+     come back. Also the fixture for min_target_px — the buttons are small. -->
+<h1>Tell us everything</h1>
+<form>
+  <label for="title">Title</label><input id="title" name="title" type="text">
+  <label for="body">What happened</label><textarea id="body" name="body"></textarea>
+  <label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email">
+  <label for="pw">Password (must NOT be saved)</label><input id="pw" name="pw" type="password">
+  <label for="cc">Card number (must NOT be saved)</label><input id="cc" name="cc" type="text" autocomplete="cc-number">
+  <label for="notes">Notes (autocomplete off — must NOT be saved)</label><input id="notes" name="notes" type="text" autocomplete="off">
+  <button type="submit">Send</button>
+</form>
+</body></html>
