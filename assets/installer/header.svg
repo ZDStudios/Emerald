@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  NSIS page header, 150x57 — again a size Modern UI 2 fixes for us.
+
+  The mark is drawn in Catppuccin Latte rather than Mocha, and that is a
+  deliberate inconsistency rather than an oversight: the header strip sits
+  inside NSIS's own chrome, and a Mocha tile there reads as a dark rectangle
+  someone forgot to finish. Latte is a theme Emerald actually ships, so the
+  installer stays inside the product's palette while sitting flush in the
+  window around it.
+
+  The ground is pure white rather than Latte's `base`, because Modern UI 2
+  paints the header with MUI_BGCOLOR — white unless overridden — and a #eff1f5
+  tile on a #ffffff strip is a visible seam around an otherwise invisible
+  bitmap. White ground means only the gem shows, which is the intent.
+
+  The mark, same paths, scaled by 0.09375 and pushed right so it lands where the
+  eye is already going on a right-aligned header bitmap.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 57" width="150" height="57">
+  <title>Emerald installer header</title>
+
+  <rect width="150" height="57" fill="#ffffff"/>
+
+  <g transform="translate(90,4) scale(0.09375)">
+    <path d="M170 64h172l106 106v172L342 448H170L64 342V170z"
+          fill="#ccd0da" stroke="#bcc0cc" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M181 181h150l43 75-43 75H181l-43-75z" fill="#40a02b"/>
+    <path d="M181 181l43 75h150" fill="none" stroke="#ffffff" stroke-width="14"
+          stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+  </g>
+</svg>

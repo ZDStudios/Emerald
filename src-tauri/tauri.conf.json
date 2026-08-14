@@ -26,7 +26,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["deb", "appimage", "app", "dmg", "msi"],
+    "targets": ["deb", "appimage", "app", "dmg", "nsis", "msi"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -38,7 +38,25 @@
     "longDescription": "Emerald is a minimalist desktop browser built on the operating system's own web engine. It ships no engine of its own, phones home to nothing, and treats focus and accessibility settings as first-class features rather than an afterthought.",
     "linux": {
       "deb": {
-        "depends": []
+        "depends": [],
+        "files": {
+          "/usr/share/fonts/emerald/jetbrains-mono-latin-400-normal.woff2": "../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2",
+          "/usr/share/fonts/emerald/jetbrains-mono-latin-700-normal.woff2": "../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-700-normal.woff2",
+          "/usr/share/fonts/emerald/atkinson-hyperlegible-latin-400-normal.woff2": "../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2",
+          "/usr/share/fonts/emerald/atkinson-hyperlegible-latin-700-normal.woff2": "../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2",
+          "/usr/share/fonts/emerald/opendyslexic-latin-400-normal.woff2": "../node_modules/@fontsource/opendyslexic/files/opendyslexic-latin-400-normal.woff2",
+          "/usr/share/fonts/emerald/opendyslexic-latin-700-normal.woff2": "../node_modules/@fontsource/opendyslexic/files/opendyslexic-latin-700-normal.woff2"
+        }
+      }
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["English"],
+        "displayLanguageSelector": false,
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "installer/header.bmp",
+        "sidebarImage": "installer/sidebar.bmp"
       }
     }
   }

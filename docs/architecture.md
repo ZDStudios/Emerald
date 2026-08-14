@@ -237,7 +237,18 @@ Live updates use `eval` with an `apply(config)` call, so dragging the line-heigh
 | Reader mode | text-density extraction into a closed shadow root | Overlay, not a document replacement, so exiting restores the page exactly |
 | Dictation | Web Speech API where present | **Absent on WebKitGTK — see below** |
 
-**Fonts are installed as system fonts, not injected as web fonts.** A page's own Content-Security-Policy can forbid `font-src` for anything the browser injects, which would make the dyslexia-friendly font silently fail on exactly the content-heavy sites where it matters most. A locally installed family is outside CSP's reach. `font_stack()` therefore names families and relies on them being installed; the Linux `.deb` installs them, and `scripts/install-fonts.sh` handles a dev checkout.
+**Fonts are installed as system fonts, not injected as web fonts.** A page's own Content-Security-Policy can forbid `font-src` for anything the browser injects, which would make the dyslexia-friendly font silently fail on exactly the content-heavy sites where it matters most. A locally installed family is outside CSP's reach. `font_stack()` therefore names families and relies on them being installed.
+
+The families ship as `.woff2`, which fontconfig reads directly — FreeType has supported WOFF2 since 2.10.2, so there is no conversion step. Where they get installed from depends on how you got Emerald, and this is uneven:
+
+| Install | Reading fonts on web pages |
+| --- | --- |
+| Linux `.deb` | **Yes** — six files into `/usr/share/fonts/emerald`, and dpkg's `fontconfig` trigger refreshes the cache |
+| Dev checkout | **Yes** — `scripts/install-fonts.sh`, per-user or `--system` |
+| Linux `.AppImage` | No. An AppImage does not install anything outside itself |
+| macOS `.dmg`, Windows `.exe`/`.msi` | No. Neither bundler has a font-install step here |
+
+Where the answer is no, the setting still works in Emerald's own interface — those faces are bundled into the frontend — but web page text falls back to the next family in the stack. That is a partial feature presented as a whole one, so it is listed in §9 rather than left to be discovered.
 
 **Dictation on Linux is a real gap.** WebKitGTK ships no `SpeechRecognition` implementation. Emerald contains no speech model and sends no audio anywhere itself, so there is nothing to fall back to. Rather than showing a button that does nothing, the affordance detects the absence, says the engine has no built-in speech recognition, and points at the OS dictation — which does work in these fields. On macOS and Windows the Web Speech path is used where the engine provides it.
 
@@ -304,4 +315,5 @@ Stated so they are not discovered as surprises:
 7. **Reader extraction is a heuristic**, roughly 40 lines. It handles articles and documentation well and gives up gracefully on applications rather than producing a mangled page.
 8. **The shortcut allowlist is duplicated in three places** — `emerald.js`, `commands.rs`, `App.tsx`. It should be generated from one source the way settings are. It is not, and a chord added to one and not the others will silently work in some contexts and not others.
 9. **`file://` pages cannot use the page commands.** `capabilities/pages.json` grants the remote origins `http` and `https` only, so drafts, scroll restore and shortcut relay do not work on local files. Fine for browsing, surprising when testing with local fixtures — which is how it was found.
-8. **Benchmarks are single-machine, Linux, WebKitGTK 2.52, under Xvfb with software rendering.** They are reproducible, not universal. macOS and Windows numbers are not yet collected, and Xvfb software rendering is not representative of a real GPU.
+10. **The reading typefaces reach web pages only on `.deb` and dev installs.** The `.AppImage`, `.dmg`, `.exe` and `.msi` install no system fonts, so on those the dyslexia font and reading face apply to Emerald's own interface but not to page text. See the table in §7. Fixing it means a font-install step in three more bundlers; the `.deb` was done first because it was the one that could be tested here.
+11. **Benchmarks are single-machine, Linux, WebKitGTK 2.52, under Xvfb with software rendering.** They are reproducible, not universal. macOS and Windows numbers are not yet collected, and Xvfb software rendering is not representative of a real GPU.

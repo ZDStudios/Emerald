@@ -187,6 +187,16 @@ Four illustrations, drawn on the same 24-unit grid scaled to 96 with the stroke 
 
 The copy does the real work. "Nothing open" tells you the two keystrokes that fix it. The resting-tab state explains what happened to your memory, what will come back, and links to the setting that controls it — because a browser that silently discards your tab owes you an explanation more than it owes you an illustration.
 
+### The installer counts
+
+The Windows installer is the first thing anyone sees of Emerald, before a single pixel of the app, and it is the easiest place in a project to leave a default in and hope nobody looks. Its two bitmaps (`assets/installer/`, rasterised to `src-tauri/installer/` by `scripts/installer-art.sh`) are drawn from the same paths as the application mark, scaled rather than redrawn.
+
+The welcome sidebar is Mocha, because that is the app's face, and it carries the reading ruler — a band with a solid accent edge over a line drawn lighter than the two around it. Of everything Emerald does, the ruler is the closest thing to a thesis, so it is what the installer leads with.
+
+The page header is the same mark in Latte on a white ground. That is not a lapse in the palette: Modern UI 2 paints its header with `MUI_BGCOLOR`, which is white, and a Mocha tile there reads as a dark rectangle somebody forgot to finish. Latte is a theme Emerald ships; white ground means only the gem shows.
+
+Neither carries a wordmark. Emerald's chrome is set in JetBrains Mono, the rasteriser that builds these bitmaps cannot see that face, and a wordmark in a substitute typeface is worse than none.
+
 ---
 
 ## 6. Writing

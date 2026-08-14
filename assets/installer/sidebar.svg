@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  NSIS welcome/finish page sidebar, 164x314 — the fixed size Modern UI 2 expects.
+
+  Drawn rather than exported from a template, for the same reason as every other
+  asset here: this is the first thing anyone sees of Emerald on Windows, and a
+  stock installer graphic would announce that nobody was paying attention.
+
+  Three elements, no more. The gem is the application mark at the same
+  proportions as `assets/emerald-mark.svg` — the identical path data, scaled by
+  0.2448, so it is the same drawing rather than a redraw. Under it the wordmark,
+  set in JetBrains Mono at the tracking the app's own chrome uses. Below that,
+  three rules standing in for lines of text, one of them carrying the accent:
+  that is the reading ruler from the Reading settings, which is the closest
+  thing this browser has to a thesis. The hairline down the right edge stops the
+  panel from bleeding into the white NSIS page beside it.
+
+  The wordmark is live text, not paths, so it resolves through fontconfig at
+  rasterisation time — which means `scripts/installer-art.sh` will not run until
+  JetBrains Mono is installed as a system font. That is deliberate. A wordmark
+  silently substituted into DejaVu Sans Mono would be worse than no wordmark at
+  all, so the script checks and refuses rather than producing it.
+
+  Catppuccin Mocha, matching the application's default theme.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 164 314" width="164" height="314">
+  <title>Emerald installer sidebar</title>
+
+  <!-- Ground: `mantle`, the same value the app's window sits on. -->
+  <rect width="164" height="314" fill="#181825"/>
+
+  <!-- Right edge: `surface0`. One pixel, doing the whole job of separating a
+       dark panel from a light page. -->
+  <rect x="163" y="0" width="1" height="314" fill="#313244"/>
+
+  <!-- The mark. Paths are verbatim from assets/emerald-mark.svg, in its 512
+       grid; the transform maps that grid's 64..448 gem box onto 35..129 here. -->
+  <g transform="translate(19.33,30.33) scale(0.2448)">
+    <path d="M170 64h172l106 106v172L342 448H170L64 342V170z"
+          fill="#313244" stroke="#45475a" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M181 181h150l43 75-43 75H181l-43-75z" fill="#a6e3a1"/>
+    <path d="M181 181l43 75h150" fill="none" stroke="#181825" stroke-width="12"
+          stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+  </g>
+
+  <!-- Wordmark. x is 82 less half the letter-spacing, because a centred run
+       with tracking carries a trailing gap that would otherwise push it right. -->
+  <text x="80.75" y="177" text-anchor="middle"
+        font-family="JetBrains Mono" font-size="15" font-weight="500"
+        letter-spacing="2.5" fill="#cdd6f4">EMERALD</text>
+
+  <!-- Reading ruler. Ragged right edges because real text is ragged. The band
+       carries a solid accent edge so it reads as a ruler rather than as a grey
+       box, and the line inside it is drawn lighter than its neighbours —
+       which is the entire point of the feature. -->
+  <g>
+    <rect x="28" y="219" width="96" height="3" rx="1.5" fill="#313244"/>
+    <rect x="24" y="236" width="112" height="12" rx="2" fill="#a6e3a1" opacity="0.13"/>
+    <rect x="24" y="236" width="2" height="12" rx="1" fill="#a6e3a1"/>
+    <rect x="32" y="241" width="74" height="3" rx="1.5" fill="#9399b2"/>
+    <rect x="28" y="263" width="88" height="3" rx="1.5" fill="#313244"/>
+  </g>
+</svg>

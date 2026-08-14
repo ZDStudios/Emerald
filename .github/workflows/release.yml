@@ -120,10 +120,31 @@ jobs:
           releaseBody: |
             Built by CI on each platform's own runner.
 
-            **These builds are unsigned.** macOS will refuse to open the app on
-            first launch — right-click the app and choose Open, or run
+            ### Which file
+
+            | You have | Download |
+            | --- | --- |
+            | Windows | `Emerald_*_x64-setup.exe` |
+            | Windows, and you deploy software for other people | `Emerald_*_x64_en-US.msi` |
+            | Mac with Apple silicon (M1 and later) | `Emerald_*_aarch64.dmg` |
+            | Mac with an Intel processor | `Emerald_*_x64.dmg` |
+            | Debian, Ubuntu, or a relative | `Emerald_*_amd64.deb` |
+            | Any other Linux | `Emerald_*_amd64.AppImage` |
+
+            The `.app.tar.gz` files are update bundles. Emerald has no updater
+            configured, so they do nothing — take the `.dmg`.
+
+            The Windows installer installs for the current user, into
+            `%LOCALAPPDATA%`, so it never asks for administrator rights.
+
+            ### These builds are unsigned
+
+            macOS will refuse to open the app on first launch — right-click the
+            app and choose Open, or run
             `xattr -dr com.apple.quarantine /Applications/Emerald.app`. Windows
-            SmartScreen will warn; choose More info → Run anyway.
+            SmartScreen will warn; choose More info → Run anyway. Signing
+            certificates cost money this project does not have, and saying so up
+            front beats letting you find out.
 
             See the [architecture notes](docs/architecture.md) for what works on
             which platform. The short version: Emerald renders with WebKit on

@@ -69,11 +69,26 @@ and choose Open, or run `xattr -dr com.apple.quarantine /Applications/Emerald.ap
 Windows SmartScreen will warn; choose More info → Run anyway. Signing certificates cost
 money this project does not have, and saying so up front beats letting you discover it.
 
-| Platform | Files | Notes |
+| Platform | Download | Notes |
 | --- | --- | --- |
-| macOS | `.dmg` (Apple silicon, Intel) | WebKit |
-| Windows | `.exe` installer, `.msi` | Chromium (WebView2). Extensions work here |
-| Linux | `.deb`, `.AppImage` | needs `libwebkit2gtk-4.1` |
+| macOS (Apple silicon) | `Emerald_0.1.0_aarch64.dmg` | WebKit |
+| macOS (Intel) | `Emerald_0.1.0_x64.dmg` | WebKit |
+| Windows | `Emerald_0.1.0_x64-setup.exe` | Chromium (WebView2). Extensions work here |
+| Windows (admins) | `Emerald_0.1.0_x64_en-US.msi` | Same build, for deployment tooling |
+| Linux (Debian, Ubuntu) | `Emerald_0.1.0_amd64.deb` | needs `libwebkit2gtk-4.1` |
+| Linux (anything else) | `Emerald_0.1.0_amd64.AppImage` | `chmod +x` it and run it |
+
+The Windows `.exe` installs for the current user only, into `%LOCALAPPDATA%`. That is
+deliberate: it means no administrator prompt to click through. The `.msi` is there for
+anyone who needs a machine-wide install or has deployment tooling that expects one.
+
+The `.app.tar.gz` files on the release are update bundles, not something to download —
+Emerald has no updater configured, so they are inert. Take the `.dmg`.
+
+One uneven thing worth knowing before you pick: the `.deb` installs Emerald's reading
+typefaces system-wide, so the dyslexia font and reading face apply to **web page text**.
+The other packages don't, so on those the same settings restyle Emerald's own interface
+only. [Details and the fix](docs/architecture.md#9-known-gaps).
 
 ## Documentation
 
