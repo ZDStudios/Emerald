@@ -17,8 +17,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to build and publish (e.g. v0.1.0)'
+        description: 'Version tag to create and publish (e.g. v0.1.0)'
         required: true
+        default: v0.1.0
         type: string
 
 permissions:
@@ -49,9 +50,12 @@ jobs:
     name: ${{ matrix.label }}
 
     steps:
+      # Check out whatever ref triggered this. On a tag push that is the tag; on
+      # a manual dispatch it is the branch it was launched from, and the tag is
+      # created by the release itself. Checking out `inputs.tag` instead would
+      # fail on dispatch because the tag does not exist yet — which is the whole
+      # reason for dispatching.
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.tag || github.ref }}
 
       # Ubuntu 22.04 rather than 24.04: the older glibc produces binaries that
       # also run on newer distributions, and the reverse is not true.
