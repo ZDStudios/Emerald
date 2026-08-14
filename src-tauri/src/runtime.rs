@@ -633,8 +633,11 @@ pub fn run() {
             let scale = window.scale_factor().unwrap_or(1.0);
             let size = window.inner_size()?.to_logical::<f64>(scale);
             window.add_child(
+                // No `.transparent(false)` here: that builder method does not
+                // exist on macOS unless the `macos-private-api` feature is on,
+                // so calling it compiles on Linux and Windows and breaks the
+                // macOS build. Opaque is the default regardless.
                 WebviewBuilder::new(CHROME, WebviewUrl::App("index.html".into()))
-                    .transparent(false)
                     .zoom_hotkeys_enabled(false)
                     // The moment the chrome has painted is the moment Emerald is
                     // usable, so that is what the startup number in
