@@ -50,6 +50,7 @@ Being honest about the other side of the trade:
 │   settings.rs   the settings schema            (6 tests)      │
 │   inject.rs     builds page content scripts    (6 tests)      │
 │   metrics.rs    /proc memory accounting        (3 tests)      │
+│   extensions.rs install + inventory extensions  (8 tests)     │
 └───────────────────────────────────────────────────────────────┘
              │ webview lifecycle           │ init script + eval
              ▼                             ▼
@@ -60,7 +61,7 @@ Being honest about the other side of the trade:
 └────────────────────────┘   └──────────────────────────────────┘
 ```
 
-The layering rule is load-bearing: **policy is pure data, effects are separate.** `tabs.rs` never creates a webview. It returns a list of `Effect`s — `Create`, `Destroy`, `Navigate`, `Relayout` — and `runtime.rs` applies them. That is what makes the thing this browser most needs to get right (when memory is released, and whose memory) testable without a display server. `cargo test` runs 41 tests in under a second, including "discarding a tab emits a Destroy, not a hide".
+The layering rule is load-bearing: **policy is pure data, effects are separate.** `tabs.rs` never creates a webview. It returns a list of `Effect`s — `Create`, `Destroy`, `Navigate`, `Relayout` — and `runtime.rs` applies them. That is what makes the thing this browser most needs to get right (when memory is released, and whose memory) testable without a display server. `cargo test` runs 49 tests in under a second, including "discarding a tab emits a Destroy, not a hide".
 
 ### Window composition
 
@@ -140,7 +141,7 @@ Full method and raw numbers: **[benchmarks.md](benchmarks.md)**. Summary of what
 
 | | Emerald | Chromium, same machine |
 | --- | --- | --- |
-| Binary | **6.0 MB** (no engine shipped) | ~180 MB |
+| Binary | **7.2 MB** (no engine shipped) | ~180 MB |
 | Cold start, exec → usable | 1277 ms | — |
 | Idle, 1 tab (PSS) | **235 MB** | 370 MB |
 | 8 tabs, Emerald capped at 2 (PSS) | **270 MB** | 448 MB |
@@ -243,6 +244,32 @@ Live updates use `eval` with an `apply(config)` call, so dragging the line-heigh
 **Emerald's own UI in the page is inside a closed shadow root** (`attachShadow({mode:'closed'})`), so page CSS cannot restyle the draft-recovery bar and page scripts cannot read it.
 
 ---
+
+## 7.5 Extensions: the sharpest price of not being Chromium
+
+| Platform | Engine | Chrome extensions |
+| --- | --- | --- |
+| Windows | WebView2 | **Yes** — unpacked, loaded from a folder |
+| macOS | WKWebView | **No.** The API does not exist |
+| Linux | WebKitGTK | **No.** Its `extensions_path` loads compiled `.so` WebKit modules — a different technology that happens to share a name |
+
+Emerald runs Chrome extensions on exactly the platform where it *is* Chromium. That symmetry is not a coincidence, it is the whole trade restated: the engine you did not ship is also the extension ecosystem you did not get.
+
+The code is split along that line deliberately. `extensions.rs` handles installation and inventory — reading manifests, unpacking `.crx`, listing what is present — and all of that is cross-platform and unit-tested, because it is just files on disk. Loading them into a webview happens only where `browser_extensions_enabled` does anything. The settings panel reads a `supported` flag from the core and, on macOS and Linux, explains the situation instead of rendering a button that would silently do nothing. That is the specific failure the original brief warned about, and it would have been very easy to ship here.
+
+**There is no Chrome Web Store button, and there will not be one.** The Store's `.crx` endpoint gates on a Chrome-branded user agent and serves under terms that do not cover third-party browsers. Emerald could impersonate Chrome and scrape it; several projects do. Instead it supports the two routes Chrome itself offers in developer mode: install a `.crx` or `.zip` you downloaded, or point at an unpacked folder.
+
+Three security notes:
+
+- **Extensions never load into the chrome webview**, only into `tab:*` webviews. An extension with access to Emerald's own UI would have access to its entire IPC surface.
+- **Signatures are not verified.** Emerald has no Web Store public key to check against, and a signature from an unknown party proves nothing. The real boundary is the permission list shown before you enable anything — host permissions marked in the needs-attention hue, because those are the ones that mean "can read and rewrite these sites".
+- **`remove` refuses any id containing a path separator or `..`**, so a crafted directory name cannot escape the extensions folder.
+
+## 7.6 Two shapes, one browser
+
+`appearance.tab_layout` picks between a vertical sidebar (Emerald's default), a horizontal strip (Chrome's shape) and no strip at all. The Appearance panel offers all three as one-click presets that also set the bookmarks bar and the tab-close behaviour.
+
+The vertical default is the considered choice — a horizontal strip degrades into indistinguishable favicons exactly when you have enough tabs to need to tell them apart, and `TopTabs` mitigates that with a 5.5em floor and scrolling rather than pretending it does not happen. But "looks like the browser I already know" is a real accessibility property, not a concession: a familiar shape costs nothing to learn, and requiring someone to relearn tab management on day one is its own barrier. Shipping only the opinionated layout would have been the less accessible choice.
 
 ## 8. Spaces, kept deliberately small
 

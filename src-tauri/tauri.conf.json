@@ -33,12 +33,12 @@
       "icons/icon.png",
       "icons/icon.ico"
     ],
-    "category": "Network",
+    "category": "Productivity",
     "shortDescription": "A calm, low-footprint browser",
     "longDescription": "Emerald is a minimalist desktop browser built on the operating system's own web engine. It ships no engine of its own, phones home to nothing, and treats focus and accessibility settings as first-class features rather than an afterthought.",
     "linux": {
       "deb": {
-        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0"]
+        "depends": []
       }
     }
   }

@@ -170,8 +170,16 @@
   --dur-fast: calc(90ms * var(--motion-scale));
   --dur-base: calc(140ms * var(--motion-scale));
   --dur-slow: calc(220ms * var(--motion-scale));
-  /* A single easing. Multiple curves in one UI read as multiple authors. */
+  /* One easing for everything by default. Multiple curves in one UI read as
+   * multiple authors. `--ease-entrance` is the same curve; it exists so the
+   * `spring` transition style can redefine exactly one thing. */
   --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-entrance: cubic-bezier(0.2, 0, 0, 1);
+  /* Distance travelled by anything that slides in. Zeroed by `fade`. */
+  --travel: 6px;
+  /* Per-item delay for staged list reveals, multiplied by the item's --i.
+   * Capped in the rules below so a 60-tab strip does not take four seconds. */
+  --stagger: calc(14ms * var(--motion-scale));
 
   /* Elevation. Shadow is used for exactly one thing — a surface that floats
    * above the page (palette, dialog) — and never for hover or emphasis. */
@@ -190,6 +198,75 @@
 :root[data-accent='mauve'] { --accent: var(--ctp-mauve); }
 :root[data-accent='peach'] { --accent: var(--ctp-peach); }
 :root[data-accent='rosewater'] { --accent: var(--ctp-rosewater); }
+
+/* ---------------------------------------------------------------------------
+ * The other Catppuccin flavours.
+ *
+ * Only the palette layer is redefined. Because every component reads semantic
+ * tokens rather than `--ctp-*`, a whole flavour is ~20 lines and cannot get a
+ * component wrong. Frappé and Macchiato are both dark, so the semantic
+ * mapping from Mocha carries over untouched; Latte inverts the depth order and
+ * has to say so explicitly.
+ * ------------------------------------------------------------------------- */
+:root[data-theme='frappe'] {
+  --ctp-base: #303446;
+  --ctp-mantle: #292c3c;
+  --ctp-crust: #232634;
+  --ctp-surface0: #414559;
+  --ctp-surface1: #51576d;
+  --ctp-surface2: #626880;
+  --ctp-overlay0: #737994;
+  --ctp-overlay1: #838ba7;
+  --ctp-overlay2: #949cbb;
+  --ctp-subtext0: #a5adce;
+  --ctp-subtext1: #b5bfe2;
+  --ctp-text: #c6d0f5;
+  --ctp-rosewater: #f2d5cf;
+  --ctp-flamingo: #eebebe;
+  --ctp-pink: #f4b8e4;
+  --ctp-mauve: #ca9ee6;
+  --ctp-red: #e78284;
+  --ctp-maroon: #ea999c;
+  --ctp-peach: #ef9f76;
+  --ctp-yellow: #e5c890;
+  --ctp-green: #a6d189;
+  --ctp-teal: #81c8be;
+  --ctp-sky: #99d1db;
+  --ctp-sapphire: #85c1dc;
+  --ctp-blue: #8caaee;
+  --ctp-lavender: #babbf1;
+  --shadow-float: 0 12px 32px rgb(35 38 52 / 0.55), 0 2px 6px rgb(35 38 52 / 0.4);
+}
+
+:root[data-theme='macchiato'] {
+  --ctp-base: #24273a;
+  --ctp-mantle: #1e2030;
+  --ctp-crust: #181926;
+  --ctp-surface0: #363a4f;
+  --ctp-surface1: #494d64;
+  --ctp-surface2: #5b6078;
+  --ctp-overlay0: #6e738d;
+  --ctp-overlay1: #8087a2;
+  --ctp-overlay2: #939ab7;
+  --ctp-subtext0: #a5adcb;
+  --ctp-subtext1: #b8c0e0;
+  --ctp-text: #cad3f5;
+  --ctp-rosewater: #f4dbd6;
+  --ctp-flamingo: #f0c6c6;
+  --ctp-pink: #f5bde6;
+  --ctp-mauve: #c6a0f6;
+  --ctp-red: #ed8796;
+  --ctp-maroon: #ee99a0;
+  --ctp-peach: #f5a97f;
+  --ctp-yellow: #eed49f;
+  --ctp-green: #a6da95;
+  --ctp-teal: #8bd5ca;
+  --ctp-sky: #91d7e3;
+  --ctp-sapphire: #7dc4e4;
+  --ctp-blue: #8aadf4;
+  --ctp-lavender: #b7bdf8;
+  --shadow-float: 0 12px 32px rgb(24 25 38 / 0.6), 0 2px 6px rgb(24 25 38 / 0.45);
+}
 
 /* ---------------------------------------------------------------------------
  * Catppuccin Latte, for bright rooms.
@@ -322,6 +399,73 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * Entrance animations
+ *
+ * Every one of these is a single run of opacity plus transform, and every one
+ * is cancelled entirely at `--motion-scale: 0`. They exist because a panel
+ * that simply appears is harder to follow than one that arrives from the
+ * direction it lives in — motion here is orientation, not decoration.
+ *
+ * What is deliberately absent: anything that loops, anything that changes
+ * colour, anything that scales past 1.0 on a surface holding text, and any
+ * entrance longer than ~220ms. A UI you have to wait for is not a nice UI.
+ * ------------------------------------------------------------------------- */
+
+@keyframes emerald-rise {
+  from { opacity: 0; transform: translateY(var(--travel)); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes emerald-slide-in {
+  from { opacity: 0; transform: translateX(calc(var(--travel) * -2)); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes emerald-pop {
+  from { opacity: 0; transform: translateY(calc(var(--travel) * -1)) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes emerald-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Utilities. `--i` is set inline by the component for staged reveals. */
+.anim-rise { animation: emerald-rise var(--dur-base) var(--ease-entrance) both; }
+.anim-pop { animation: emerald-pop var(--dur-slow) var(--ease-entrance) both; }
+.anim-fade { animation: emerald-fade var(--dur-base) var(--ease) both; }
+.anim-slide { animation: emerald-slide-in var(--dur-base) var(--ease-entrance) both; }
+
+.stagger > * {
+  animation: emerald-rise var(--dur-base) var(--ease-entrance) both;
+  /* min() caps the cascade: past ~12 items everything arrives together
+   * rather than the last row waiting on the first. */
+  animation-delay: min(calc(var(--i, 0) * var(--stagger)), calc(12 * var(--stagger)));
+}
+
+/* `spring` is the only style that overshoots, and only on panels — never on a
+ * surface you are about to read, where settling text is nauseating. */
+:root[data-transition='spring'] {
+  --ease-entrance: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --travel: 10px;
+}
+
+/* `fade` means fade: opacity only, nothing travels. */
+:root[data-transition='fade'] {
+  --travel: 0px;
+}
+
+/* At zero motion, no entrance runs at all. Elements are simply present. */
+:root[data-motion='off'] .anim-rise,
+:root[data-motion='off'] .anim-pop,
+:root[data-motion='off'] .anim-fade,
+:root[data-motion='off'] .anim-slide,
+:root[data-motion='off'] .stagger > * {
+  animation: none !important;
 }
 
 /* Respect the OS signal too, without waiting for the in-app setting. */

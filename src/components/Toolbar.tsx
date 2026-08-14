@@ -9,7 +9,8 @@
 
 import { createEffect, createSignal, Show } from 'solid-js';
 import { ipc, type StateSnapshot } from '../lib/ipc';
-import { Back, Bookmark, Command, Forward, FocusMode, Reading, Reload, Split } from '../icons';
+import { Back, Bookmark, Command, Forward, FocusMode, Gem, Reading, Reload, Settings, Split } from '../icons';
+import type { PanelSection } from './FocusAccess';
 import { MOD } from '../lib/theme';
 
 interface Props {
@@ -17,6 +18,12 @@ interface Props {
   focusRequest: number;
   onOpenPalette: () => void;
   onCycleFocus: () => void;
+  onOpenPanel: (s: PanelSection) => void;
+  /** True when the sidebar is hidden, so the toolbar has to carry the routes
+   *  into settings that normally live in the sidebar footer. Focus & Access
+   *  must stay one click away from anywhere — that is a promise, not a
+   *  layout detail. */
+  showMenu: boolean;
 }
 
 export function Toolbar(props: Props) {
@@ -160,6 +167,24 @@ export function Toolbar(props: Props) {
       <button class="icon-btn" aria-label="Command palette" onClick={props.onOpenPalette}>
         <Command size={17} />
       </button>
+
+      <Show when={props.showMenu}>
+        <button
+          class="icon-btn"
+          aria-label="Focus & Access"
+          title={`Focus & Access — ${MOD}+Shift+A`}
+          onClick={() => props.onOpenPanel('attention')}
+        >
+          <Gem size={17} />
+        </button>
+        <button
+          class="icon-btn"
+          aria-label="Settings"
+          onClick={() => props.onOpenPanel('appearance')}
+        >
+          <Settings size={17} />
+        </button>
+      </Show>
     </div>
   );
 }

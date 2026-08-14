@@ -131,31 +131,38 @@ export const TabLayoutHelp: Record<TabLayout, string> = {
 };
 
 /** Base palette. */
-export type Theme = 'mocha' | 'latte' | 'system';
-export const ThemeValues: readonly Theme[] = ['mocha', 'latte', 'system'] as const;
+export type Theme = 'mocha' | 'frappe' | 'macchiato' | 'latte' | 'system';
+export const ThemeValues: readonly Theme[] = ['mocha', 'frappe', 'macchiato', 'latte', 'system'] as const;
 export const ThemeHelp: Record<Theme, string> = {
   'mocha': "Catppuccin Mocha. Emerald's designed-for palette.",
+  'frappe': "Catppuccin Frappé. Warmer and lower-contrast than Mocha.",
+  'macchiato': "Catppuccin Macchiato. Between Frappé and Mocha.",
   'latte': "Catppuccin Latte, for bright rooms.",
-  'system': "Follow the OS.",
+  'system': "Follow the OS, using Mocha and Latte.",
 };
 
 /** Chrome transition style. */
-export type TransitionStyle = 'instant' | 'fade' | 'slide';
-export const TransitionStyleValues: readonly TransitionStyle[] = ['instant', 'fade', 'slide'] as const;
+export type TransitionStyle = 'instant' | 'fade' | 'slide' | 'spring';
+export const TransitionStyleValues: readonly TransitionStyle[] = ['instant', 'fade', 'slide', 'spring'] as const;
 export const TransitionStyleHelp: Record<TransitionStyle, string> = {
   'instant': "State changes are immediate. No interpolation of any kind.",
   'fade': "Opacity only. Nothing translates, scales, or bounces.",
   'slide': "Opacity plus a short translation on panels that slide in from an edge.",
+  'spring': "Slide, plus a small overshoot on panels and a staged reveal on lists. The most expressive setting Emerald offers. Still opacity and transform only, still nothing that flashes, and still zeroed by `animation_speed`.",
 };
 
 /** Colour, type and chrome layout. */
 export interface Appearance {
   /** Which Catppuccin accent carries "this is active / this is yours". */
   accent: Accent;
+  /** Show the tab strip's close buttons only on hover (Emerald) or always (Chrome). Small, but it is one of the things that makes a browser feel like the one you are used to. */
+  always_show_tab_close: boolean;
   /** Show the favicon strip when the sidebar is collapsed. */
   collapsed_sidebar_favicons: boolean;
   /** Vertical rhythm of the chrome. */
   density: Density;
+  /** Show a bookmarks bar under the toolbar, Chrome-style. */
+  show_bookmarks_bar: boolean;
   /** Where tabs live. */
   tab_layout: TabLayout;
   /** Base palette. Emerald ships Catppuccin Mocha and a light counterpart. */
@@ -188,6 +195,18 @@ export interface Attention {
   show_archive_count: boolean;
   /** Discard a tab's web process after this many minutes without focus. `0` disables time-based discarding (the `max_live_tabs` cap still applies). This is the only clock-driven policy in Emerald; see `docs/architecture.md` §6 for the one background timer it justifies. */
   suspend_idle_minutes: number;
+}
+
+/** Browser extensions. **Read this before enabling it.** Extension support is not Emerald's to give — it belongs to whichever engine the operating system provides, and the three are not the same: | Platform | Engine | Chrome extensions? | | --- | --- | --- | | Windows | WebView2 | **Yes**, unpacked, loaded from a folder | | macOS | WKWebView | **No.** The API does not exist | | Linux | WebKitGTK | **No.** Its `extensions_path` loads compiled `.so` WebKit extensions, which are a different technology that happens to share a name | So Emerald can run a Chrome extension on Windows and cannot on the two platforms where it is *not* using Chromium. That is the direct cost of the engine decision in `docs/architecture.md` §1, and the settings panel says so on the platforms where it applies rather than showing a button that does nothing. There is also no one-click Chrome Web Store install anywhere. The Web Store serves `.crx` files to Chrome-branded user agents under terms that do not cover third-party browsers, so Emerald does not scrape it. What it does support is installing a `.crx` **you** downloaded, and loading an unpacked extension folder — the same two routes Chrome itself offers in developer mode. */
+export interface Extensions {
+  /** Warn before installing an extension, showing the permissions its manifest requests. Extensions run with wide access to page content; this is on by default and turning it off is a real decision. */
+  confirm_permissions: boolean;
+  /** Where unpacked extensions live. Empty means the default: `<config dir>/extensions`. */
+  directory: string;
+  /** Extension folder names that are installed but switched off. Emerald keeps the files so re-enabling costs nothing. */
+  disabled: string[];
+  /** Load extensions into page webviews. Has no effect on macOS or Linux. */
+  enabled: boolean;
 }
 
 /** The Focus & Access panel. Reachable from anywhere with `Ctrl/Cmd+Shift+A`, or from the command palette in one keystroke plus one selection. */
@@ -318,6 +337,8 @@ export interface Reading {
 export interface Settings {
   /** Colour, type and chrome layout. */
   appearance: Appearance;
+  /** Browser extensions. Engine-dependent — see [`Extensions`]. */
+  extensions: Extensions;
   /** The Focus & Access panel: attention, predictability, reading, input. */
   focus_access: FocusAccess;
   /** Memory and process behaviour. */
@@ -332,11 +353,19 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   "appearance": {
     "accent": "green",
+    "always_show_tab_close": false,
     "collapsed_sidebar_favicons": true,
     "density": "comfortable",
+    "show_bookmarks_bar": false,
     "tab_layout": "sidebar",
     "theme": "mocha",
     "ui_font_size_pct": 100
+  },
+  "extensions": {
+    "confirm_permissions": true,
+    "directory": "",
+    "disabled": [],
+    "enabled": false
   },
   "focus_access": {
     "attention": {

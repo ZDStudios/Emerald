@@ -15,7 +15,7 @@
  */
 
 import { createSignal, For, onMount, Show, type JSX } from 'solid-js';
-import { ipc, type MemorySample, type StateSnapshot } from '../lib/ipc';
+import { ipc, type ExtensionState, type MemorySample, type StateSnapshot } from '../lib/ipc';
 import {
   AccentValues,
   AutoplayPolicyValues,
@@ -52,6 +52,7 @@ import {
   InputAssist,
   Predictable,
   Reading,
+  Puzzle,
   Settings as SettingsIcon,
   Shield,
 } from '../icons';
@@ -63,6 +64,7 @@ export type PanelSection =
   | 'reading'
   | 'input'
   | 'appearance'
+  | 'extensions'
   | 'performance'
   | 'privacy';
 
@@ -84,6 +86,7 @@ const SECTIONS: Array<{
   { id: 'reading', label: 'Reading', icon: Reading },
   { id: 'input', label: 'Input', icon: InputAssist },
   { id: 'appearance', label: 'Appearance', icon: SettingsIcon },
+  { id: 'extensions', label: 'Extensions', icon: Puzzle },
   { id: 'performance', label: 'Performance', icon: Gauge },
   { id: 'privacy', label: 'Privacy', icon: Shield },
 ];
@@ -136,6 +139,9 @@ export function FocusAccess(props: Props) {
         </Show>
         <Show when={current() === 'appearance'}>
           <AppearanceSection settings={s()} patch={patch} />
+        </Show>
+        <Show when={current() === 'extensions'}>
+          <ExtensionsSection />
         </Show>
         <Show when={current() === 'performance'}>
           <PerformanceSection settings={s()} patch={patch} state={props.state} />
@@ -963,6 +969,46 @@ function AppearanceSection(props: { settings: Settings; patch: Patch }) {
         </div>
       </Field>
 
+      <Field
+        name="Start from a familiar shape"
+        help="Presets, not modes: each one sets the handful of options below and then gets out of the way. Nothing is hidden and you can change any of it afterwards."
+      >
+        <div class="seg" role="group" aria-label="Layout preset">
+          <button
+            onClick={() =>
+              props.patch((d) => {
+                d.appearance.tab_layout = 'sidebar';
+                d.appearance.show_bookmarks_bar = false;
+                d.appearance.always_show_tab_close = false;
+              })
+            }
+          >
+            Emerald
+          </button>
+          <button
+            onClick={() =>
+              props.patch((d) => {
+                d.appearance.tab_layout = 'top';
+                d.appearance.show_bookmarks_bar = true;
+                d.appearance.always_show_tab_close = true;
+              })
+            }
+          >
+            Chrome-like
+          </button>
+          <button
+            onClick={() =>
+              props.patch((d) => {
+                d.appearance.tab_layout = 'hidden';
+                d.appearance.show_bookmarks_bar = false;
+              })
+            }
+          >
+            Bare
+          </button>
+        </div>
+      </Field>
+
       <Field name="Where tabs live" help="Vertical keeps titles readable however many you have open.">
         <Choice
           value={a().tab_layout}
@@ -985,6 +1031,28 @@ function AppearanceSection(props: { settings: Settings; patch: Patch }) {
         />
       </Field>
 
+      <Field
+        name="Bookmarks bar"
+        help="A strip of the current space's bookmarks under the toolbar. Bookmarks belong to a space, so switching space changes the bar."
+      >
+        <Toggle
+          checked={a().show_bookmarks_bar}
+          label="Show bookmarks bar"
+          onChange={(v) => props.patch((d) => (d.appearance.show_bookmarks_bar = v))}
+        />
+      </Field>
+
+      <Field
+        name="Always show tab close buttons"
+        help="Chrome shows them all the time; Emerald reveals them on hover, which is quieter but less discoverable."
+      >
+        <Toggle
+          checked={a().always_show_tab_close}
+          label="Always show tab close buttons"
+          onChange={(v) => props.patch((d) => (d.appearance.always_show_tab_close = v))}
+        />
+      </Field>
+
       <Field name="Density">
         <Segmented
           value={a().density}
@@ -993,6 +1061,150 @@ function AppearanceSection(props: { settings: Settings; patch: Patch }) {
           onChange={(v) => props.patch((d) => (d.appearance.density = v))}
         />
       </Field>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * Extensions
+ * ------------------------------------------------------------------------- */
+
+function ExtensionsSection() {
+  const [state, setState] = createSignal<ExtensionState | null>(null);
+  const [busy, setBusy] = createSignal('');
+  const [error, setError] = createSignal('');
+
+  const refresh = () => void ipc.listExtensions().then(setState).catch(() => setState(null));
+  onMount(refresh);
+
+  const install = async () => {
+    setError('');
+    const { open } = await import('@tauri-apps/plugin-dialog');
+    const picked = await open({
+      title: 'Choose an extension package',
+      multiple: false,
+      filters: [{ name: 'Extension', extensions: ['crx', 'zip'] }],
+    });
+    if (typeof picked !== 'string') return;
+    setBusy('Installing…');
+    try {
+      await ipc.installExtension(picked);
+      refresh();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy('');
+    }
+  };
+
+  return (
+    <>
+      <header>
+        <h2>Extensions</h2>
+        <p class="lede">
+          Extension support is not Emerald's to give — it belongs to whichever web engine
+          your operating system provides, and the three are not the same.
+        </p>
+      </header>
+
+      <Show
+        when={state()?.supported}
+        fallback={
+          <Show when={state()}>
+            <p class="note warn">
+              <strong>This build cannot run Chrome extensions.</strong> Emerald uses{' '}
+              {state()!.engine} here, which has no Chrome extension system —{' '}
+              {state()!.engine === 'WKWebView'
+                ? 'the API does not exist on macOS at all.'
+                : 'its extension mechanism loads compiled WebKit modules, a different technology that happens to share the name.'}{' '}
+              Chrome extensions work in Emerald on Windows, where the engine is WebView2.
+              This is the direct cost of not shipping Chromium, and it is the sharpest one.
+            </p>
+            <p class="note">
+              You can still install packages here — they are stored, listed and kept — but
+              nothing will load them until you run Emerald on a platform whose engine
+              supports them.
+            </p>
+          </Show>
+        }
+      >
+        <p class="note">
+          Emerald loads unpacked extensions through WebView2. There is no Chrome Web Store
+          button: the Store serves <code>.crx</code> files to Chrome-branded clients under
+          terms that do not cover other browsers, and Emerald does not pretend to be Chrome
+          to get around that. Download the package yourself and install it below — the same
+          route Chrome offers in developer mode.
+        </p>
+      </Show>
+
+      <div class="field">
+        <div class="label">
+          <strong class="name">Load extensions</strong>
+          <p class="help">
+            Extensions run with wide access to the pages they match. They are never loaded
+            into Emerald's own interface — only into web pages.
+          </p>
+        </div>
+        <div class="control">
+          <button class="btn" onClick={install} disabled={Boolean(busy())}>
+            {busy() || 'Install from file…'}
+          </button>
+          <Show when={error()}>
+            <p class="help" style={{ color: 'var(--danger)' }}>{error()}</p>
+          </Show>
+        </div>
+      </div>
+
+      <Show when={state()}>
+        <p class="help" style={{ 'margin-bottom': 'var(--space-4)' }}>
+          Installed in <code>{state()!.directory}</code>
+        </p>
+      </Show>
+
+      <Show
+        when={(state()?.installed.length ?? 0) > 0}
+        fallback={<p class="help">No extensions installed.</p>}
+      >
+        <div class="ext-list stagger">
+          <For each={state()!.installed}>
+            {(ext, i) => (
+              <div class="ext" style={{ '--i': i() }}>
+                <div>
+                  <h4>{ext.name}</h4>
+                  <span class="meta">
+                    v{ext.version || '?'} · manifest v{ext.manifest_version}
+                    {ext.manifest_version === 2 ? ' · Chrome no longer runs MV2' : ''}
+                  </span>
+                  <Show when={ext.description}>
+                    <p class="desc">{ext.description}</p>
+                  </Show>
+                  <Show when={ext.host_permissions.length + ext.permissions.length > 0}>
+                    <div class="perms">
+                      <For each={ext.host_permissions}>
+                        {(h) => <span class="perm host" title="Can read and change these sites">{h}</span>}
+                      </For>
+                      <For each={ext.permissions}>{(p) => <span class="perm">{p}</span>}</For>
+                    </div>
+                  </Show>
+                </div>
+                <div class="ext-actions">
+                  <Toggle
+                    checked={ext.enabled}
+                    label={`Enable ${ext.name}`}
+                    onChange={(v) => void ipc.setExtensionEnabled(ext.id, v).then(refresh)}
+                  />
+                  <button
+                    class="btn danger"
+                    onClick={() => void ipc.removeExtension(ext.id).then(refresh)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
+          </For>
+        </div>
+      </Show>
     </>
   );
 }

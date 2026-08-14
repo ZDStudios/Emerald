@@ -17,6 +17,8 @@ import { Toolbar } from './components/Toolbar';
 import { CommandPalette } from './components/CommandPalette';
 import { FocusAccess, type PanelSection } from './components/FocusAccess';
 import { Content } from './components/Content';
+import { TopTabs } from './components/TopTabs';
+import { BookmarksBar } from './components/BookmarksBar';
 
 /** Chords Emerald claims. Must stay in step with OWNED in
  * assets/content/emerald.js and OWNED_SHORTCUTS in commands.rs. */
@@ -50,10 +52,14 @@ export function App() {
 
   const activeTab = () => state.tabs.find((t) => t.id === state.active);
   const focusMode = () => state.settings.focus_access.attention.focus_mode;
-  const sidebarHidden = () =>
-    state.settings.appearance.tab_layout === 'hidden' ||
-    (focusMode() === 'solo' && state.settings.focus_access.attention.hide_tabs_in_focus) ||
-    focusMode() === 'solo';
+  const layout = () => state.settings.appearance.tab_layout;
+  /* Solo focus mode removes the tab strip whichever layout is in use — that is
+   * the entire point of "one thing at a time". */
+  const tabsHidden = () => layout() === 'hidden' || focusMode() === 'solo';
+  const showSidebar = () => layout() === 'sidebar' && !tabsHidden();
+  const showTopTabs = () => layout() === 'top' && !tabsHidden();
+  const showBookmarks = () =>
+    state.settings.appearance.show_bookmarks_bar && focusMode() !== 'solo';
 
   /* `reconcile` so Solid patches the existing store rather than replacing it:
    * a tab row whose title changed must not remount, or the row you were
@@ -203,10 +209,10 @@ export function App() {
   return (
     <div
       class="shell"
-      data-layout={state.settings.appearance.tab_layout}
+      data-layout={showSidebar() ? 'sidebar' : 'top'}
       data-focus={focusMode()}
     >
-      <Show when={!sidebarHidden()}>
+      <Show when={showSidebar()}>
         <Sidebar
           state={state}
           onOpenPanel={setPanel}
@@ -215,12 +221,20 @@ export function App() {
       </Show>
 
       <div class="main">
+        <Show when={showTopTabs()}>
+          <TopTabs state={state} />
+        </Show>
         <Toolbar
           state={state}
           focusRequest={omniFocus()}
           onOpenPalette={() => setPaletteOpen(true)}
           onCycleFocus={cycleFocusMode}
+          onOpenPanel={setPanel}
+          showMenu={!showSidebar()}
         />
+        <Show when={showBookmarks()}>
+          <BookmarksBar state={state} />
+        </Show>
         <div class="content" ref={contentRef}>
           <Content state={state} onOpenPanel={setPanel} />
           <Show when={panel()}>

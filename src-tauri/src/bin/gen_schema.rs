@@ -454,6 +454,11 @@ fn section_order() -> Vec<(&'static [&'static str], &'static str, &'static str)>
             "Privacy",
             "What leaves the machine. The short answer is nothing that you did not ask for.",
         ),
+        (
+            &["extensions"],
+            "Extensions",
+            "Chrome extensions run on Windows, where Emerald's engine is WebView2, and do              not run on macOS or Linux, whose engines have no Chrome extension system.              These options are still read and stored everywhere — installing on a platform              that cannot load them is allowed and simply does nothing until you run Emerald              somewhere that can. There is no Chrome Web Store integration; see              `docs/architecture.md` §7.5.",
+        ),
     ]
 }
 

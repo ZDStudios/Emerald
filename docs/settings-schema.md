@@ -17,7 +17,7 @@ Out-of-range values are clamped on load, not rejected. Unknown keys are an
 error, so a typo surfaces instead of silently doing nothing. A file that
 fails to parse is moved aside to `settings.json.bak` and defaults are used.
 
-**63 options** across 7 sections.
+**69 options** across 8 sections.
 
 ## Focus & Access → Attention
 
@@ -66,7 +66,7 @@ Nothing moves, plays, or reorders without being asked. Written with autism in mi
 | `show_blocked_media_placeholder` | `boolean` | `true` | — | Show a short static notice where blocked media would have played, instead of nothing at all. Off means blocked media is invisible. |
 | `stable_tab_order` | `boolean` | `true` | — | Never reorder tabs automatically — no "most recently used" shuffling, no promoting a tab because it made noise. New tabs always append. |
 | `suppress_popups` | `boolean` | `true` | — | Open new links in the current tab unless explicitly middle-clicked. Stops pages spawning tabs you did not ask for. |
-| `transitions` | `instant` \| `fade` \| `slide` | `fade` | — | How chrome transitions render. `Instant` is honoured even when `animation_speed` is above zero. |
+| `transitions` | `instant` \| `fade` \| `slide` \| `spring` | `fade` | — | How chrome transitions render. `Instant` is honoured even when `animation_speed` is above zero. |
 
 <details><summary>What the choices mean</summary>
 
@@ -87,6 +87,7 @@ Nothing moves, plays, or reorders without being asked. Written with autism in mi
 - `instant` — State changes are immediate. No interpolation of any kind.
 - `fade` — Opacity only. Nothing translates, scales, or bounces.
 - `slide` — Opacity plus a short translation on panels that slide in from an edge.
+- `spring` — Slide, plus a small overshoot on panels and a staged reveal on lists. The most expressive setting Emerald offers. Still opacity and transform only, still nothing that flashes, and still zeroed by `animation_speed`.
 
 </details>
 
@@ -183,10 +184,12 @@ Colour, type, and chrome layout.
 | Option | Type | Default | Range | Meaning |
 | --- | --- | --- | --- | --- |
 | `accent` | `green` \| `teal` \| `sapphire` \| `lavender` \| `mauve` \| `peach` \| `rosewater` | `green` | — | Which Catppuccin accent carries "this is active / this is yours". |
+| `always_show_tab_close` | `boolean` | `false` | — | Show the tab strip's close buttons only on hover (Emerald) or always (Chrome). Small, but it is one of the things that makes a browser feel like the one you are used to. |
 | `collapsed_sidebar_favicons` | `boolean` | `true` | — | Show the favicon strip when the sidebar is collapsed. |
 | `density` | `compact` \| `comfortable` \| `roomy` | `comfortable` | — | Vertical rhythm of the chrome. |
+| `show_bookmarks_bar` | `boolean` | `false` | — | Show a bookmarks bar under the toolbar, Chrome-style. |
 | `tab_layout` | `sidebar` \| `top` \| `hidden` | `sidebar` | — | Where tabs live. |
-| `theme` | `mocha` \| `latte` \| `system` | `mocha` | — | Base palette. Emerald ships Catppuccin Mocha and a light counterpart. |
+| `theme` | `mocha` \| `frappe` \| `macchiato` \| `latte` \| `system` | `mocha` | — | Base palette. Emerald ships Catppuccin Mocha and a light counterpart. |
 | `ui_font_size_pct` | `number` | `100` | 75 – 200 | Chrome text size as a percentage of the 13px base. |
 
 <details><summary>What the choices mean</summary>
@@ -200,8 +203,10 @@ Colour, type, and chrome layout.
 **`theme`**
 
 - `mocha` — Catppuccin Mocha. Emerald's designed-for palette.
+- `frappe` — Catppuccin Frappé. Warmer and lower-contrast than Mocha.
+- `macchiato` — Catppuccin Macchiato. Between Frappé and Mocha.
 - `latte` — Catppuccin Latte, for bright rooms.
-- `system` — Follow the OS.
+- `system` — Follow the OS, using Mocha and Latte.
 
 </details>
 
@@ -240,6 +245,17 @@ What leaves the machine. The short answer is nothing that you did not ask for.
 - `custom` — Use `custom_search_url`.
 
 </details>
+
+## Extensions
+
+Chrome extensions run on Windows, where Emerald's engine is WebView2, and do              not run on macOS or Linux, whose engines have no Chrome extension system.              These options are still read and stored everywhere — installing on a platform              that cannot load them is allowed and simply does nothing until you run Emerald              somewhere that can. There is no Chrome Web Store integration; see              `docs/architecture.md` §7.5.
+
+| Option | Type | Default | Range | Meaning |
+| --- | --- | --- | --- | --- |
+| `confirm_permissions` | `boolean` | `true` | — | Warn before installing an extension, showing the permissions its manifest requests. Extensions run with wide access to page content; this is on by default and turning it off is a real decision. |
+| `directory` | `string` | *(empty)* | — | Where unpacked extensions live. Empty means the default: `<config dir>/extensions`. |
+| `disabled` | `string[]` | `[]` | — | Extension folder names that are installed but switched off. Emerald keeps the files so re-enabling costs nothing. |
+| `enabled` | `boolean` | `false` | — | Load extensions into page webviews. Has no effect on macOS or Linux. |
 
 ## Not settings, on purpose
 

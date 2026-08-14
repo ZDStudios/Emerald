@@ -113,9 +113,22 @@ Three leading values (`1.25` / `1.5` / `1.7`). Tracking opens slightly at the sm
 
 **Two properties are ever animated: `opacity` and `transform`.** Never height, never colour, never anything that could read as a flash.
 
-**One easing curve** for the whole application, `cubic-bezier(0.2, 0, 0, 1)`. Multiple curves in one interface read as multiple authors.
+**One easing curve** for the whole application, `cubic-bezier(0.2, 0, 0, 1)`. Multiple curves in one interface read as multiple authors. The `spring` transition style overrides exactly one token, `--ease-entrance`, and only for panels.
 
-**Three durations**, all multiplied by `--motion-scale`: 90ms, 140ms, 220ms.
+**Three durations**, all multiplied by `--motion-scale`: 90ms, 140ms, 220ms. Nothing in the interface animates for longer than 220ms — a UI you have to wait for is not a polished UI, it is a slow one.
+
+### The line between expressive and restless
+
+There is a real tension here and it is worth naming rather than resolving quietly. "Calm" and "delightful motion" pull in opposite directions, and Emerald's users include people for whom movement is not delight but interference.
+
+Emerald resolves it by being generous about *where* motion happens and strict about *what kind*:
+
+- **Surfaces that arrive get an entrance.** Panels rise, the palette scales up from 0.985, lists stagger in at 14ms per row. Motion here is orientation — it tells you where a thing came from, which is genuinely easier to follow than something that simply appears.
+- **Surfaces you are reading never move.** No entrance animation runs on page content, on the reader, or on the type specimen. Text that settles into place is nauseating and unreadable while it does so.
+- **The stagger is capped.** Past twelve rows everything arrives together, so a sixty-tab strip does not take four seconds to appear. A cascade that outlives your patience is not a flourish.
+- **Nothing overshoots by default.** `spring` adds a small overshoot and is opt-in, and even then only on panels.
+
+And the whole system collapses to nothing at `--motion-scale: 0`, which is one slider in Focus & Access. Not "reduced" — off. Every entrance is `animation: none`, every transition is `0ms`, and no information is lost, because nothing here is communicated by movement alone.
 
 `--motion-scale` comes from the animation-speed setting. **At zero, every transition becomes 0ms and the interface simply snaps.** Nothing is lost, because no information in Emerald is conveyed by movement alone — anything a transition indicates is also indicated by a durable state change. Choosing `transitions: instant` forces zero regardless of the speed multiplier, because "instant" should mean instant rather than "fast".
 

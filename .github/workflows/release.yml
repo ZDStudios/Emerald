@@ -1,0 +1,129 @@
+name: Release
+
+# Builds Emerald for all three platforms and attaches the installers to a
+# GitHub release.
+#
+# Why this exists rather than a build script: a Tauri app cannot be
+# cross-compiled. macOS needs the Xcode toolchain and the WKWebView frameworks;
+# Windows needs MSVC and the WebView2 SDK; the installers themselves (.dmg,
+# NSIS .exe, .msi) are produced by platform-native tooling. Each target has to
+# be built on its own runner, and this workflow is the only place that happens.
+#
+# Triggered by pushing a `v*` tag, or manually from the Actions tab.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build and publish (e.g. v0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      # Never cancel siblings: a macOS failure should not throw away a Windows
+      # installer that built fine.
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            label: macOS (Apple silicon)
+          - platform: macos-latest
+            target: x86_64-apple-darwin
+            label: macOS (Intel)
+          - platform: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            label: Linux (x86_64)
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            label: Windows (x86_64)
+
+    runs-on: ${{ matrix.platform }}
+    name: ${{ matrix.label }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      # Ubuntu 22.04 rather than 24.04: the older glibc produces binaries that
+      # also run on newer distributions, and the reverse is not true.
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libssl-dev \
+            patchelf \
+            build-essential \
+            file
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+          key: ${{ matrix.target }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The reading typefaces are installed as system fonts by the packages
+      # themselves; this only bundles them for the app's own UI.
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Verify generated settings artefacts are current
+        if: matrix.platform == 'ubuntu-22.04'
+        run: ./scripts/check-generated.sh
+
+      - name: Test
+        if: matrix.platform == 'ubuntu-22.04'
+        run: cd src-tauri && cargo test --lib
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Unsigned builds. macOS will show a Gatekeeper warning and Windows
+          # SmartScreen will too — see the release notes, which say so rather
+          # than letting people discover it. Signing needs certificates this
+          # repository does not have.
+          CI: true
+        with:
+          tagName: ${{ inputs.tag || github.ref_name }}
+          releaseName: 'Emerald ${{ inputs.tag || github.ref_name }}'
+          releaseBody: |
+            Built by CI on each platform's own runner.
+
+            **These builds are unsigned.** macOS will refuse to open the app on
+            first launch — right-click the app and choose Open, or run
+            `xattr -dr com.apple.quarantine /Applications/Emerald.app`. Windows
+            SmartScreen will warn; choose More info → Run anyway.
+
+            See the [architecture notes](docs/architecture.md) for what works on
+            which platform. The short version: Emerald renders with WebKit on
+            macOS and Linux, and with Chromium (WebView2) on Windows.
+          releaseDraft: true
+          prerelease: true
+          args: --target ${{ matrix.target }}

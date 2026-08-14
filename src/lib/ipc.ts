@@ -93,6 +93,26 @@ export interface SearchHit {
   score: number;
 }
 
+export interface InstalledExtension {
+  id: string;
+  name: string;
+  version: string;
+  description: string;
+  manifest_version: number;
+  permissions: string[];
+  host_permissions: string[];
+  enabled: boolean;
+  path: string;
+}
+
+export interface ExtensionState {
+  /** False on macOS and Linux, whose engines cannot run Chrome extensions. */
+  supported: boolean;
+  engine: string;
+  directory: string;
+  installed: InstalledExtension[];
+}
+
 export interface ProcessMemory {
   pid: number;
   name: string;
@@ -149,6 +169,12 @@ export const ipc = {
   resolveQuery: (input: string) => invoke<string>('resolve_query', { input }),
   recentDrafts: (limit?: number) => invoke<Draft[]>('recent_drafts', { limit }),
   memorySample: () => invoke<MemorySample>('memory_sample'),
+
+  listExtensions: () => invoke<ExtensionState>('list_extensions'),
+  installExtension: (path: string) => invoke<InstalledExtension>('install_extension', { path }),
+  setExtensionEnabled: (id: string, enabled: boolean) =>
+    invoke<void>('set_extension_enabled', { id, enabled }),
+  removeExtension: (id: string) => invoke<void>('remove_extension', { id }),
 };
 
 /** Subscribe to core state pushes. Returns an unlisten function. */

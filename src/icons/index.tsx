@@ -309,6 +309,15 @@ export function MutedMedia(props: IconProps) {
  * Chrome and system
  * ------------------------------------------------------------------------- */
 
+/** Extensions. A puzzle piece with the facet cut on its trailing corner. */
+export function Puzzle(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10 4h4a2 2 0 0 1 2 2 2 2 0 0 0 2 2h2v4a2 2 0 0 0-2 2 2 2 0 0 0 2 2v3l-3 1H9a2 2 0 0 1-2-2 2 2 0 0 0-2-2H4v-4a2 2 0 0 0 2-2 2 2 0 0 0-2-2V6a2 2 0 0 1 2-2z" />
+    </Icon>
+  );
+}
+
 export function Settings(props: IconProps) {
   return (
     <Icon {...props}>
@@ -507,6 +516,7 @@ export const icons = {
   Mic,
   Draft,
   MutedMedia,
+  Puzzle,
   Settings,
   Shield,
   Gauge,

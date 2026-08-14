@@ -50,6 +50,10 @@ fn main() {
             "search_all",
             "resolve_query",
             "memory_sample",
+            "list_extensions",
+            "install_extension",
+            "set_extension_enabled",
+            "remove_extension",
             "recent_drafts",
             "discard_all_idle",
             // --- callable by rendered web pages ---

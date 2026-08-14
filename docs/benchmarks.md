@@ -30,6 +30,12 @@ CHROMIUM=/path/to/chrome ./bench/run.sh --tabs 8 --repeat 3
 
 ---
 
+> **Numbers below predate the extensions, bookmarks-bar and Chrome-layout work.**
+> The binary grew from 6.0 MB to 7.2 MB and the chrome bundle from 75 KB to 86 KB
+> in that change, so cold start in particular is likely to have moved. They are
+> left in place rather than quietly adjusted, and re-running `./bench/run.sh`
+> regenerates them honestly.
+
 ## Results
 
 ### Cold start
@@ -109,10 +115,10 @@ It is also a single machine, on Linux, under software rendering. **Xvfb software
 
 | | |
 | --- | --- |
-| Binary | **6.0 MB** — no bundled engine |
-| Chrome bundle | 75 KB JS + 55 KB CSS (25 KB + 25 KB gzipped) |
+| Binary | **7.2 MB** — no bundled engine |
+| Chrome bundle | 86 KB JS + 60 KB CSS (29 KB + 27 KB gzipped) |
 | Bundled fonts | 480 KB woff2, of which OpenDyslexic is 236 KB |
-| Rust unit tests | 41, ~0.00s |
+| Rust unit tests | 49, ~0.00s |
 | Background timers at rest | **0** |
 
 That last row is checkable rather than rhetorical: with `suspend_idle_minutes`, `auto_archive_idle_minutes` and `memory_budget_mb` all zero, `Settings::needs_sampler()` returns false and the policy thread parks on a condvar. There is no other periodic work in the program.

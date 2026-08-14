@@ -19,6 +19,7 @@
 //! derives it from `Webview::url()`, so `evil.example` cannot read or clobber
 //! `bank.example`'s drafts by claiming to be it.
 
+use crate::extensions::{self, InstalledExtension};
 use crate::inject;
 use crate::metrics::{self, MemorySample};
 use crate::runtime::{
@@ -723,6 +724,106 @@ pub fn recent_drafts(webview: Webview, core: State<Core>, limit: Option<usize>) 
         .collect())
 }
 
+// ---------------------------------------------------------------------------
+// Extensions
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ExtensionState {
+    /// False on macOS and Linux, where the engine cannot run Chrome
+    /// extensions at all. The panel uses this to explain rather than to
+    /// present a control that would do nothing.
+    pub supported: bool,
+    /// The engine name, so the explanation can be specific.
+    pub engine: &'static str,
+    pub directory: String,
+    pub installed: Vec<InstalledExtension>,
+}
+
+fn engine_name() -> &'static str {
+    if cfg!(target_os = "windows") {
+        "WebView2"
+    } else if cfg!(target_os = "macos") {
+        "WKWebView"
+    } else {
+        "WebKitGTK"
+    }
+}
+
+fn extensions_dir(core: &Core) -> std::path::PathBuf {
+    core.settings.read().extensions.dir(&core.config_dir)
+}
+
+#[tauri::command]
+pub fn list_extensions(webview: Webview, core: State<Core>) -> Res<ExtensionState> {
+    guard_chrome(&webview)?;
+    let dir = extensions_dir(&core);
+    let disabled = core.settings.read().extensions.disabled.clone();
+    Ok(ExtensionState {
+        supported: crate::settings::Extensions::supported_here(),
+        engine: engine_name(),
+        directory: dir.to_string_lossy().to_string(),
+        installed: extensions::list(&dir, &disabled),
+    })
+}
+
+/// Install a `.crx` or `.zip` the user already has on disk.
+///
+/// Emerald does not fetch from the Chrome Web Store; see `extensions.rs` for
+/// why. The path comes from the chrome's file picker, and the command is
+/// chrome-only, so a page cannot point this at anything.
+#[tauri::command]
+pub fn install_extension(
+    webview: Webview,
+    core: State<Core>,
+    path: String,
+) -> Res<InstalledExtension> {
+    guard_chrome(&webview)?;
+    let dir = extensions_dir(&core);
+    std::fs::create_dir_all(&dir).map_err(|e| format!("cannot create extensions folder: {e}"))?;
+    extensions::install_archive(std::path::Path::new(&path), &dir)
+}
+
+#[tauri::command]
+pub fn set_extension_enabled(
+    webview: Webview,
+    app: tauri::AppHandle,
+    core: State<Core>,
+    id: String,
+    enabled: bool,
+) -> Res<()> {
+    guard_chrome(&webview)?;
+    {
+        let mut settings = core.settings.write();
+        settings.extensions.disabled.retain(|d| d != &id);
+        if !enabled {
+            settings.extensions.disabled.push(id);
+        }
+    }
+    core.flush();
+    push_state(&app);
+    Ok(())
+}
+
+#[tauri::command]
+pub fn remove_extension(
+    webview: Webview,
+    app: tauri::AppHandle,
+    core: State<Core>,
+    id: String,
+) -> Res<()> {
+    guard_chrome(&webview)?;
+    let dir = extensions_dir(&core);
+    extensions::remove(&dir, &id)?;
+    {
+        let mut settings = core.settings.write();
+        settings.extensions.disabled.retain(|d| d != &id);
+    }
+    core.flush();
+    push_state(&app);
+    Ok(())
+}
+
 #[tauri::command]
 pub fn memory_sample(webview: Webview) -> Res<MemorySample> {
     guard_chrome(&webview)?;
@@ -879,6 +980,10 @@ pub fn handler() -> impl Fn(tauri::ipc::Invoke) -> bool + Send + Sync + 'static 
         search_all,
         resolve_query,
         memory_sample,
+        list_extensions,
+        install_extension,
+        set_extension_enabled,
+        remove_extension,
         recent_drafts,
         discard_all_idle,
         page_draft,

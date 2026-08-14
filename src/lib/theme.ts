@@ -33,10 +33,15 @@ export function applyTheme(settings: Settings) {
 
   // Motion. `transitions: instant` overrides the speed multiplier entirely —
   // choosing "instant" should mean instant, not "fast".
-  const instant = focus_access.predictability.transitions === 'instant';
+  const transitions = focus_access.predictability.transitions;
+  const instant = transitions === 'instant';
   const scale = instant ? 0 : focus_access.attention.animation_speed;
   root.style.setProperty('--motion-scale', String(scale));
   root.dataset.motion = scale === 0 ? 'off' : 'on';
+  // Drives --travel and --ease-entrance: 'fade' zeroes the travel distance,
+  // 'spring' adds overshoot. Kept as a data attribute so the whole motion
+  // character lives in CSS rather than being recomputed per component.
+  root.dataset.transition = transitions;
 
   root.style.setProperty('--focus-dim', String(focus_access.attention.focus_dim_opacity));
 

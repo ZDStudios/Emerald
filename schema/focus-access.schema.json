@@ -22,6 +22,11 @@
           "default": "green",
           "description": "Which Catppuccin accent carries \"this is active / this is yours\"."
         },
+        "always_show_tab_close": {
+          "default": false,
+          "description": "Show the tab strip's close buttons only on hover (Emerald) or always\n(Chrome). Small, but it is one of the things that makes a browser feel\nlike the one you are used to.",
+          "type": "boolean"
+        },
         "collapsed_sidebar_favicons": {
           "default": true,
           "description": "Show the favicon strip when the sidebar is collapsed.",
@@ -31,6 +36,11 @@
           "$ref": "#/$defs/Density",
           "default": "comfortable",
           "description": "Vertical rhythm of the chrome."
+        },
+        "show_bookmarks_bar": {
+          "default": false,
+          "description": "Show a bookmarks bar under the toolbar, Chrome-style.",
+          "type": "boolean"
         },
         "tab_layout": {
           "$ref": "#/$defs/TabLayout",
@@ -198,6 +208,36 @@
           "type": "string"
         }
       ]
+    },
+    "Extensions": {
+      "additionalProperties": false,
+      "description": "Browser extensions.\n\n**Read this before enabling it.** Extension support is not Emerald's to\ngive — it belongs to whichever engine the operating system provides, and\nthe three are not the same:\n\n| Platform | Engine | Chrome extensions? |\n| --- | --- | --- |\n| Windows | WebView2 | **Yes**, unpacked, loaded from a folder |\n| macOS | WKWebView | **No.** The API does not exist |\n| Linux | WebKitGTK | **No.** Its `extensions_path` loads compiled `.so` WebKit extensions, which are a different technology that happens to share a name |\n\nSo Emerald can run a Chrome extension on Windows and cannot on the two\nplatforms where it is *not* using Chromium. That is the direct cost of the\nengine decision in `docs/architecture.md` §1, and the settings panel says so\non the platforms where it applies rather than showing a button that does\nnothing.\n\nThere is also no one-click Chrome Web Store install anywhere. The Web Store\nserves `.crx` files to Chrome-branded user agents under terms that do not\ncover third-party browsers, so Emerald does not scrape it. What it does\nsupport is installing a `.crx` **you** downloaded, and loading an unpacked\nextension folder — the same two routes Chrome itself offers in developer\nmode.",
+      "properties": {
+        "confirm_permissions": {
+          "default": true,
+          "description": "Warn before installing an extension, showing the permissions its\nmanifest requests. Extensions run with wide access to page content;\nthis is on by default and turning it off is a real decision.",
+          "type": "boolean"
+        },
+        "directory": {
+          "default": "",
+          "description": "Where unpacked extensions live. Empty means the default:\n`<config dir>/extensions`.",
+          "type": "string"
+        },
+        "disabled": {
+          "default": [],
+          "description": "Extension folder names that are installed but switched off. Emerald\nkeeps the files so re-enabling costs nothing.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "enabled": {
+          "default": false,
+          "description": "Load extensions into page webviews. Has no effect on macOS or Linux.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
     },
     "FocusAccess": {
       "additionalProperties": false,
@@ -771,13 +811,23 @@
           "type": "string"
         },
         {
+          "const": "frappe",
+          "description": "Catppuccin Frappé. Warmer and lower-contrast than Mocha.",
+          "type": "string"
+        },
+        {
+          "const": "macchiato",
+          "description": "Catppuccin Macchiato. Between Frappé and Mocha.",
+          "type": "string"
+        },
+        {
           "const": "latte",
           "description": "Catppuccin Latte, for bright rooms.",
           "type": "string"
         },
         {
           "const": "system",
-          "description": "Follow the OS.",
+          "description": "Follow the OS, using Mocha and Latte.",
           "type": "string"
         }
       ]
@@ -799,6 +849,11 @@
           "const": "slide",
           "description": "Opacity plus a short translation on panels that slide in from an edge.",
           "type": "string"
+        },
+        {
+          "const": "spring",
+          "description": "Slide, plus a small overshoot on panels and a staged reveal on lists.\nThe most expressive setting Emerald offers. Still opacity and transform\nonly, still nothing that flashes, and still zeroed by `animation_speed`.",
+          "type": "string"
         }
       ]
     }
@@ -811,13 +866,25 @@
       "$ref": "#/$defs/Appearance",
       "default": {
         "accent": "green",
+        "always_show_tab_close": false,
         "collapsed_sidebar_favicons": true,
         "density": "comfortable",
+        "show_bookmarks_bar": false,
         "tab_layout": "sidebar",
         "theme": "mocha",
         "ui_font_size_pct": 100
       },
       "description": "Colour, type and chrome layout."
+    },
+    "extensions": {
+      "$ref": "#/$defs/Extensions",
+      "default": {
+        "confirm_permissions": true,
+        "directory": "",
+        "disabled": [],
+        "enabled": false
+      },
+      "description": "Browser extensions. Engine-dependent — see [`Extensions`]."
     },
     "focus_access": {
       "$ref": "#/$defs/FocusAccess",

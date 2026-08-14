@@ -31,11 +31,20 @@ tauri-build = { version = "2", features = [] }
 # same OS window. See docs/architecture.md §3.
 tauri = { version = "2", features = ["unstable"] }
 tauri-plugin-opener = "2"
+# The file picker for installing an extension package. Emerald asks the OS for
+# a path; it never browses the filesystem itself.
+tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 schemars = "1"
 parking_lot = "0.12"
 url = "2"
+
+# Unpacking `.crx` extension archives, which are a header followed by a ZIP.
+# `default-features = false` drops bzip2/zstd/AES/time — an extension package
+# only ever uses store or deflate, and the rest is supply chain we would be
+# carrying for nothing.
+zip = { version = "8", default-features = false, features = ["deflate"] }
 
 # Deliberately absent: no process-info crate. `metrics.rs` reads /proc directly
 # on Linux and shells out to `ps` on macOS, which is ~80 lines and no supply

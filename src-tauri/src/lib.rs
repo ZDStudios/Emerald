@@ -14,6 +14,7 @@
 //! ```
 
 pub mod commands;
+pub mod extensions;
 #[cfg(target_os = "linux")]
 pub mod gtk_layout;
 pub mod inject;

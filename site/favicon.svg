@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Emerald's application mark.
+
+  The same emerald-cut gem as the `Gem` icon in src/icons/index.tsx, drawn at
+  512 with the stroke weight scaled proportionally so the two are visibly the
+  same drawing rather than two attempts at the same idea.
+
+  At app-icon sizes a hairline outline disappears, so the mark fills: the
+  pavilion in Catppuccin Mocha's `surface0`, the table facet in the Emerald
+  accent (`green`), on the `mantle` ground. Three values, no gradient — a
+  gradient here would be the first step toward the generic look this project
+  is explicitly avoiding.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Emerald</title>
+
+  <!-- Ground. Squircle-ish radius matching the 2px-at-24 corner rule. -->
+  <rect width="512" height="512" rx="112" fill="#181825"/>
+
+  <!-- Gem body: octagon with 45° cut corners, scaled from the 24-grid path
+       M8 3h8l5 5v8l-5 5H8l-5-5V8z -->
+  <path d="M170 64h172l106 106v172L342 448H170L64 342V170z"
+        fill="#313244" stroke="#45475a" stroke-width="10" stroke-linejoin="round"/>
+
+  <!-- Table facet: the accent. This is the only saturated shape in the mark,
+       which is the same rule the UI follows — accent means "the live thing". -->
+  <path d="M181 181h150l43 75-43 75H181l-43-75z"
+        fill="#a6e3a1"/>
+
+  <!-- Crown line: one facet cut, the set's signature, drawn as a break in the
+       table rather than an extra element. -->
+  <path d="M181 181l43 75h150" fill="none" stroke="#181825" stroke-width="12"
+        stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+</svg>

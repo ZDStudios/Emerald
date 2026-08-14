@@ -59,9 +59,14 @@ body {
   height: 100%;
 }
 
+/* Without the sidebar the shell has a single child, so it needs a single
+ * full-height row. `auto` here would size `.main` to its content, `.content`
+ * would collapse to nothing, and the core would faithfully position every page
+ * webview into a 1px-tall rectangle — a blank browser with a perfectly correct
+ * tab strip above it. */
 .shell[data-layout='top'] {
   grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
 }
 
 .main {
@@ -854,3 +859,233 @@ kbd {
 :root[data-motion='off'] * {
   transition: none !important;
 }
+
+/* ---------------------------------------------------------------------------
+ * Horizontal tab strip — the Chrome-shaped layout
+ *
+ * Tabs shrink to a floor and then the strip scrolls, rather than collapsing to
+ * slivers. A tab you cannot read is not a tab, it is a decoration that happens
+ * to be clickable.
+ * ------------------------------------------------------------------------- */
+
+.topstrip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--edge);
+  min-height: calc(var(--row-height) + var(--space-2));
+}
+
+.topstrip-scroll {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.topstrip-scroll::-webkit-scrollbar { display: none; }
+
+.topstrip-new { flex: none; }
+
+.toptab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 0;
+  min-width: 5.5em;   /* the floor: below this a title is unreadable */
+  max-width: 15em;
+  height: var(--row-height);
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.toptab:hover { background: var(--surface-hover); color: var(--text); }
+
+/* The active tab: raised surface plus a 2px accent underline. Same rule as the
+ * sidebar — accent marks the live thing, and only the live thing. */
+.toptab[aria-current='true'] {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--edge);
+  border-bottom-color: transparent;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.toptab .title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+}
+
+.toptab[data-state='discarded'] .title { color: var(--text-faint); }
+
+.toptab .close {
+  opacity: 0;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+.toptab[data-close='always'] .close,
+.toptab:hover .close,
+.toptab:focus-within .close { opacity: 1; }
+.toptab .close:hover { background: var(--surface-active); color: var(--danger); }
+
+/* ---------------------------------------------------------------------------
+ * Bookmarks bar
+ * ------------------------------------------------------------------------- */
+
+.bookmarks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--edge);
+  overflow-x: auto;
+  scrollbar-width: none;
+  min-height: 30px;
+}
+.bookmarks::-webkit-scrollbar { display: none; }
+
+.bookmarks-list { display: flex; align-items: center; gap: var(--space-1); }
+
+.bookmarks-empty {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  padding-inline: var(--space-2);
+}
+
+.bookmark { display: flex; align-items: center; }
+
+.bookmark-open {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 18ch;
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.bookmark-open span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bookmark-open:hover { background: var(--surface-hover); color: var(--text); }
+
+.bookmark-remove {
+  opacity: 0;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+.bookmark:hover .bookmark-remove,
+.bookmark:focus-within .bookmark-remove { opacity: 1; }
+.bookmark-remove:hover { color: var(--danger); background: var(--surface-active); }
+
+/* ---------------------------------------------------------------------------
+ * Extensions panel
+ * ------------------------------------------------------------------------- */
+
+.ext-list { display: flex; flex-direction: column; gap: var(--space-2); max-width: 72ch; }
+
+.ext {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-4);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.ext h4 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+}
+
+.ext .meta {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.ext .desc {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+  font-family: var(--font-read);
+  line-height: var(--leading-loose);
+  max-width: 52ch;
+}
+
+.perms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+.perm {
+  font-size: var(--text-xs);
+  padding: 2px var(--space-2);
+  border: 1px solid var(--edge-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-faint);
+}
+
+/* A host permission is the one that actually matters — it means the extension
+ * can read and rewrite those pages. Marked in the needs-attention hue, which
+ * means the same thing everywhere in Emerald. */
+.perm.host { border-color: var(--warn); color: var(--warn); }
+
+.ext-actions { display: flex; flex-direction: column; gap: var(--space-2); }
+
+/* ---------------------------------------------------------------------------
+ * Entrance animation on the surfaces that appear
+ * ------------------------------------------------------------------------- */
+
+.palette { animation: emerald-pop var(--dur-slow) var(--ease-entrance) both; }
+.scrim { animation: emerald-fade var(--dur-fast) var(--ease) both; }
+.panel { animation: emerald-rise var(--dur-base) var(--ease-entrance) both; }
+.empty { animation: emerald-rise var(--dur-slow) var(--ease-entrance) both; }
+
+:root[data-motion='off'] .palette,
+:root[data-motion='off'] .scrim,
+:root[data-motion='off'] .panel,
+:root[data-motion='off'] .empty { animation: none !important; }

@@ -314,10 +314,31 @@ fn create_tab_webview(app: &tauri::AppHandle, id: TabId, url: &str) {
     let app_for_title = app.clone();
     let app_for_load = app.clone();
 
-    let builder = WebviewBuilder::new(&label, target)
+    let mut builder = WebviewBuilder::new(&label, target)
         .initialization_script(init)
         .background_throttling(throttling)
-        .zoom_hotkeys_enabled(true)
+        .zoom_hotkeys_enabled(true);
+
+    // Extensions load into *page* webviews only — never into the chrome, which
+    // would hand every extension the browser's own IPC surface.
+    //
+    // `browser_extensions_enabled` is a no-op outside WebView2, so on macOS and
+    // Linux these two calls do nothing at all. That is not a bug to work around,
+    // it is the engine decision showing its price. See extensions.rs.
+    {
+        let core = app.state::<Core>();
+        let settings = core.settings.read();
+        if settings.extensions.enabled && crate::settings::Extensions::supported_here() {
+            let dir = settings.extensions.dir(&core.config_dir);
+            if dir.is_dir() {
+                builder = builder
+                    .browser_extensions_enabled(true)
+                    .extensions_path(dir);
+            }
+        }
+    }
+
+    let builder = builder
         .on_navigation(move |url| {
             // Record the URL the tab is actually on. Returning true always:
             // Emerald does not block navigation, it only observes it.
@@ -552,6 +573,7 @@ pub fn push_settings_to_pages(app: &tauri::AppHandle) {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(crate::commands::handler())
         .setup(|app| {
             let boot = std::time::Instant::now();

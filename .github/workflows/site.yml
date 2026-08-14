@@ -1,0 +1,52 @@
+name: Site
+
+# Publishes site/ to GitHub Pages.
+#
+# The site has no build step — it is HTML, one stylesheet, and self-hosted
+# fonts. The only thing this workflow does beyond copying is pull the
+# screenshots in from docs/screenshots, so there is exactly one copy of each
+# image in the repository and the README and the site cannot disagree about
+# what Emerald looks like.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'docs/screenshots/*.png'
+      - '.github/workflows/site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it midway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble
+        run: |
+          mkdir -p site/shots
+          cp docs/screenshots/*.png site/shots/
+          # A .nojekyll file stops Pages from running the content through
+          # Jekyll, which would otherwise ignore anything starting with `_`.
+          touch site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

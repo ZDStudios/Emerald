@@ -43,6 +43,8 @@ pub struct Settings {
     pub performance: Performance,
     /// Data that leaves the machine, and data that stays on it.
     pub privacy: Privacy,
+    /// Browser extensions. Engine-dependent — see [`Extensions`].
+    pub extensions: Extensions,
 }
 
 impl Default for Settings {
@@ -53,6 +55,7 @@ impl Default for Settings {
             appearance: Appearance::default(),
             performance: Performance::default(),
             privacy: Privacy::default(),
+            extensions: Extensions::default(),
         }
     }
 }
@@ -263,6 +266,10 @@ pub enum TransitionStyle {
     Fade,
     /// Opacity plus a short translation on panels that slide in from an edge.
     Slide,
+    /// Slide, plus a small overshoot on panels and a staged reveal on lists.
+    /// The most expressive setting Emerald offers. Still opacity and transform
+    /// only, still nothing that flashes, and still zeroed by `animation_speed`.
+    Spring,
 }
 
 /// Colour intensity profile. Hue meaning is constant across all three.
@@ -552,6 +559,12 @@ pub struct Appearance {
     pub density: Density,
     /// Show the favicon strip when the sidebar is collapsed.
     pub collapsed_sidebar_favicons: bool,
+    /// Show a bookmarks bar under the toolbar, Chrome-style.
+    pub show_bookmarks_bar: bool,
+    /// Show the tab strip's close buttons only on hover (Emerald) or always
+    /// (Chrome). Small, but it is one of the things that makes a browser feel
+    /// like the one you are used to.
+    pub always_show_tab_close: bool,
 }
 
 impl Default for Appearance {
@@ -563,6 +576,8 @@ impl Default for Appearance {
             ui_font_size_pct: 100,
             density: Density::Comfortable,
             collapsed_sidebar_favicons: true,
+            show_bookmarks_bar: false,
+            always_show_tab_close: false,
         }
     }
 }
@@ -574,9 +589,13 @@ pub enum Theme {
     /// Catppuccin Mocha. Emerald's designed-for palette.
     #[default]
     Mocha,
+    /// Catppuccin Frappé. Warmer and lower-contrast than Mocha.
+    Frappe,
+    /// Catppuccin Macchiato. Between Frappé and Mocha.
+    Macchiato,
     /// Catppuccin Latte, for bright rooms.
     Latte,
-    /// Follow the OS.
+    /// Follow the OS, using Mocha and Latte.
     System,
 }
 
@@ -720,6 +739,81 @@ impl SearchEngine {
             Self::Google => "https://www.google.com/search?q={q}".into(),
             Self::Custom => custom.to_string(),
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Extensions
+// ---------------------------------------------------------------------------
+
+/// Browser extensions.
+///
+/// **Read this before enabling it.** Extension support is not Emerald's to
+/// give — it belongs to whichever engine the operating system provides, and
+/// the three are not the same:
+///
+/// | Platform | Engine | Chrome extensions? |
+/// | --- | --- | --- |
+/// | Windows | WebView2 | **Yes**, unpacked, loaded from a folder |
+/// | macOS | WKWebView | **No.** The API does not exist |
+/// | Linux | WebKitGTK | **No.** Its `extensions_path` loads compiled `.so` WebKit extensions, which are a different technology that happens to share a name |
+///
+/// So Emerald can run a Chrome extension on Windows and cannot on the two
+/// platforms where it is *not* using Chromium. That is the direct cost of the
+/// engine decision in `docs/architecture.md` §1, and the settings panel says so
+/// on the platforms where it applies rather than showing a button that does
+/// nothing.
+///
+/// There is also no one-click Chrome Web Store install anywhere. The Web Store
+/// serves `.crx` files to Chrome-branded user agents under terms that do not
+/// cover third-party browsers, so Emerald does not scrape it. What it does
+/// support is installing a `.crx` **you** downloaded, and loading an unpacked
+/// extension folder — the same two routes Chrome itself offers in developer
+/// mode.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(default, deny_unknown_fields)]
+pub struct Extensions {
+    /// Load extensions into page webviews. Has no effect on macOS or Linux.
+    pub enabled: bool,
+
+    /// Where unpacked extensions live. Empty means the default:
+    /// `<config dir>/extensions`.
+    pub directory: String,
+
+    /// Extension folder names that are installed but switched off. Emerald
+    /// keeps the files so re-enabling costs nothing.
+    pub disabled: Vec<String>,
+
+    /// Warn before installing an extension, showing the permissions its
+    /// manifest requests. Extensions run with wide access to page content;
+    /// this is on by default and turning it off is a real decision.
+    pub confirm_permissions: bool,
+}
+
+impl Default for Extensions {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            directory: String::new(),
+            disabled: Vec::new(),
+            confirm_permissions: true,
+        }
+    }
+}
+
+impl Extensions {
+    /// Resolve the extensions directory against the profile directory.
+    pub fn dir(&self, config_dir: &Path) -> PathBuf {
+        if self.directory.trim().is_empty() {
+            config_dir.join("extensions")
+        } else {
+            PathBuf::from(&self.directory)
+        }
+    }
+
+    /// True where the platform's engine can actually run Chrome extensions.
+    pub const fn supported_here() -> bool {
+        cfg!(target_os = "windows")
     }
 }
 

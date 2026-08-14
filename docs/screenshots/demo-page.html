@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The tab you forgot — Emerald</title>
+    <!--
+      The page shown in Emerald's README screenshots.
+
+      It lives in the repo so the screenshots are reproducible: run
+      `scripts/screenshots.sh` and you get the same images. Deliberately a
+      well-typeset light page, because the point of the shot is the browser
+      chrome around it, and a dark page would blur the boundary between
+      Emerald's UI and the web content it is framing.
+    -->
+    <style>
+      :root { color-scheme: light; }
+      html { background: #fbfaf8; }
+      body {
+        margin: 0;
+        padding: 72px 40px 120px;
+        font-family: Charter, Georgia, 'Times New Roman', serif;
+        font-size: 19px;
+        line-height: 1.65;
+        color: #23211e;
+      }
+      main { max-width: 34em; margin: 0 auto; }
+      .kicker {
+        font-family: ui-monospace, 'SF Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #8a8378;
+        margin: 0 0 20px;
+      }
+      h1 {
+        font-size: 2.1em;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+        font-weight: 600;
+      }
+      .stand {
+        margin: 0 0 36px;
+        color: #6b655c;
+        font-size: 1.05em;
+      }
+      p { margin: 0 0 1.15em; }
+      blockquote {
+        margin: 32px 0;
+        padding-left: 20px;
+        border-left: 2px solid #d8d2c6;
+        color: #4a463f;
+        font-style: italic;
+      }
+      hr { border: 0; border-top: 1px solid #e6e1d8; margin: 40px 0; }
+      .byline {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        color: #8a8378;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="kicker">Essay · 6 min</p>
+      <h1>The tab you forgot about</h1>
+      <p class="stand">
+        Every browser tab you opened three days ago and never closed is still holding
+        memory. Most browsers pretend otherwise.
+      </p>
+
+      <p>
+        There is a particular kind of tab that nobody talks about. Not the one you are
+        reading, and not the one you closed. The one from Tuesday — opened for a reason
+        that made sense at the time, kept because closing it felt like admitting the
+        reason had passed.
+      </p>
+
+      <p>
+        Browsers have a word for what they do with these. They call it discarding, or
+        sleeping, or freezing, and the words are doing a lot of work. Sometimes the tab
+        really is gone from memory and reloads when you return to it. Sometimes it has
+        merely been told to stop running timers, and its several hundred megabytes are
+        exactly where they were.
+      </p>
+
+      <blockquote>
+        The difference is invisible from the tab strip, which is the only place most
+        people ever look.
+      </blockquote>
+
+      <p>
+        You can tell the two apart, but not from inside the browser. You have to open a
+        process monitor and count. A tab that has genuinely been released takes its
+        renderer process with it; a tab that has merely been throttled does not. One of
+        these gives your machine back a gigabyte when you have twenty tabs open. The
+        other gives you a slightly cooler laptop.
+      </p>
+
+      <p>
+        None of which is an argument for closing your tabs. It is an argument for a
+        browser that tells you which kind of forgetting it is doing, and lets you set the
+        threshold yourself, and does not treat the number of things you are holding in
+        mind as a personal failing to be gamified away.
+      </p>
+
+      <hr />
+      <p class="byline">Demo content · not a real publication</p>
+    </main>
+  </body>
+</html>
