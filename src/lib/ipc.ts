@@ -8,9 +8,60 @@
  * source of truth and no reconciliation to get wrong.
  */
 
-import { invoke } from '@tauri-apps/api/core';
+import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import type { Settings } from './settings.gen';
+
+/* --- failure reporting ----------------------------------------------------
+ *
+ * Every mutating call below is fired with `void`, which means an unhandled
+ * rejection: the call fails, the promise is dropped, and the interface simply
+ * does not react. That is the worst failure mode this browser can have — the
+ * one where the user cannot tell the difference between "nothing happened" and
+ * "something broke", and neither can anyone trying to help them. In a release
+ * build there is no console to check either.
+ *
+ * So every failure is recorded here and surfaced in the chrome. It is the same
+ * rule the settings copy follows: say what happened. */
+
+export interface IpcFailure {
+  command: string;
+  message: string;
+  at: number;
+}
+
+const failures: IpcFailure[] = [];
+const watchers = new Set<(f: IpcFailure[]) => void>();
+
+/** Subscribe to IPC failures. Returns an unsubscribe function. */
+export function onIpcFailure(handler: (f: IpcFailure[]) => void) {
+  watchers.add(handler);
+  if (failures.length) handler([...failures]);
+  return () => void watchers.delete(handler);
+}
+
+/** The failures so far, oldest first. Capped — a broken IPC layer can fail
+ *  on every keystroke, and an unbounded log would be its own leak. */
+export function ipcFailures() {
+  return [...failures];
+}
+
+function record(command: string, error: unknown) {
+  const message =
+    error instanceof Error ? error.message : typeof error === 'string' ? error : String(error);
+  failures.push({ command, message, at: Date.now() });
+  if (failures.length > 25) failures.shift();
+  // Still log: when devtools *are* open this is the fastest way to see it.
+  console.error(`emerald: ${command} failed —`, error);
+  for (const w of watchers) w([...failures]);
+}
+
+function invoke<T>(command: string, args?: Record<string, unknown>): Promise<T> {
+  return tauriInvoke<T>(command, args).catch((e) => {
+    record(command, e);
+    throw e;
+  });
+}
 
 export type TabId = number;
 export type SpaceId = number;

@@ -29,7 +29,12 @@ tauri-build = { version = "2", features = [] }
 # `unstable` unlocks multi-webview windows (Window::add_child). Emerald needs
 # them: the chrome is one webview and every tab is a sibling webview inside the
 # same OS window. See docs/architecture.md §3.
-tauri = { version = "2", features = ["unstable"] }
+# `devtools` in release builds too. Normally this is debug-only, and shipping it
+# costs a little binary size, but a browser whose users cannot open a console is
+# a browser whose bugs can only ever be described as "it doesn't work" — which
+# is exactly how the first Windows report arrived, with no way to see the error
+# behind it. F12 works in the shipped build.
+tauri = { version = "2", features = ["unstable", "devtools"] }
 tauri-plugin-opener = "2"
 # The file picker for installing an extension package. Emerald asks the OS for
 # a path; it never browses the filesystem itself.

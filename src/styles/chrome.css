@@ -1089,3 +1089,61 @@ kbd {
 :root[data-motion='off'] .scrim,
 :root[data-motion='off'] .panel,
 :root[data-motion='off'] .empty { animation: none !important; }
+
+/* --- IPC fault banner ------------------------------------------------------
+ *
+ * Deliberately loud by this design system's standards — full width, across the
+ * top of everything, using the error hue rather than the accent. Every other
+ * surface here is built to stay quiet; this one only appears when the browser
+ * has stopped being a browser, and at that point the calm rule is the wrong
+ * rule. It still does not flash, pulse, or animate: §4's no-flashing invariant
+ * has no exceptions, including this one. */
+/* Fixed rather than a grid child on purpose. `.shell` is a single-row grid, and
+ * adding a row to it from a rarely-taken code path is how the content area
+ * collapsed to 1px the last time this file grew a track. An overlay cannot
+ * disturb a layout it is not part of. */
+.ipc-fault {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 90;
+  background: var(--surface-raised);
+  border-bottom: 2px solid var(--danger);
+  color: var(--text);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+
+.ipc-fault strong {
+  color: var(--danger);
+  font-family: var(--font-ui);
+}
+
+.ipc-fault p {
+  margin: var(--space-2) 0 0;
+  max-width: 70ch;
+}
+
+.ipc-fault ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+}
+
+.ipc-fault li {
+  margin-top: var(--space-1);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.ipc-fault code {
+  font-family: var(--font-ui);
+  color: var(--text);
+}
+
+.ipc-fault-help {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}

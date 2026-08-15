@@ -6,10 +6,16 @@
  * that receives state and calls `ipc`.
  */
 
-import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
+import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { listen } from '@tauri-apps/api/event';
-import { ipc, onState, type StateSnapshot } from './lib/ipc';
+import {
+  ipc,
+  onIpcFailure,
+  onState,
+  type IpcFailure,
+  type StateSnapshot,
+} from './lib/ipc';
 import { DEFAULT_SETTINGS, type Settings } from './lib/settings.gen';
 import { applyTheme, hasMod } from './lib/theme';
 import { Sidebar } from './components/Sidebar';
@@ -47,6 +53,34 @@ export function App() {
   const [paletteOpen, setPaletteOpen] = createSignal(false);
   const [panel, setPanel] = createSignal<PanelSection | null>(null);
   const [omniFocus, setOmniFocus] = createSignal(0);
+  const [fatal, setFatal] = createSignal<string | null>(null);
+  const [failures, setFailures] = createSignal<IpcFailure[]>([]);
+  const [faultSeen, setFaultSeen] = createSignal(false);
+
+  /* Shown until dismissed. Re-arms on a *new* failure, so acknowledging one
+   * problem does not silence the next.
+   *
+   * A memo, not a plain accessor, and that is load-bearing. The overlay effect
+   * below reads this and calls `set_overlay` — itself an IPC call. If that call
+   * fails it records a failure, which changes `failures()`, which would re-run
+   * the effect, which would call it again: a tight infinite loop that only
+   * triggers once IPC is already broken, i.e. exactly when this code matters.
+   * A memo compares by value, so a second failure while the banner is already
+   * up does not re-notify. */
+  const showFault = createMemo(
+    () => !faultSeen() && (fatal() !== null || failures().length > 0)
+  );
+
+  /* A browser that cannot reach its own core has to say so. Without this the
+   * only symptom is an interface that ignores you. */
+  onMount(() =>
+    onCleanup(
+      onIpcFailure((f) => {
+        setFailures(f);
+        setFaultSeen(false);
+      })
+    )
+  );
 
   let contentRef: HTMLDivElement | undefined;
 
@@ -66,10 +100,32 @@ export function App() {
    * hovering jumps out from under the pointer. */
   const receive = (next: StateSnapshot) => setState(reconcile(next, { key: 'id' }));
 
+  /* Subscribe *before* asking for the first snapshot, and never let one failed
+   * call take the subscription with it.
+   *
+   * The previous order was `receive(await ipc.getState())` and then `listen`.
+   * If that first call rejected — or never settled — the await threw, the
+   * listener was never registered, and the chrome stayed on its empty initial
+   * store forever: a complete, correct-looking browser with no tabs that
+   * ignored every click, because the one line that would have connected it to
+   * the core had been skipped. Silent, permanent, and indistinguishable from a
+   * frozen UI. Subscribing first means a failed snapshot costs one snapshot. */
   onMount(async () => {
-    receive(await ipc.getState());
-    const unlisten = await onState(receive);
-    onCleanup(() => void unlisten());
+    try {
+      const unlisten = await onState(receive);
+      onCleanup(() => void unlisten());
+    } catch (e) {
+      setFatal(
+        `Emerald could not subscribe to its own core (${String(e)}). The window will not update.`
+      );
+      return;
+    }
+    try {
+      receive(await ipc.getState());
+    } catch {
+      // Already recorded and shown by the failure banner; the listener is live,
+      // so the next push from the core will fill the window in anyway.
+    }
   });
 
   createEffect(() => applyTheme(state.settings as Settings));
@@ -77,7 +133,7 @@ export function App() {
   /* Page webviews are native widgets layered above the chrome webview, so the
    * palette and the settings panel would render behind the page. Tell the core
    * to stand the pages down while either is open. */
-  createEffect(() => void ipc.setOverlay(paletteOpen() || panel() !== null));
+  createEffect(() => void ipc.setOverlay(paletteOpen() || panel() !== null || showFault()));
 
   /* --- insets -------------------------------------------------------------
    * The core positions page webviews into the rect this element occupies. It
@@ -212,6 +268,34 @@ export function App() {
       data-layout={showSidebar() ? 'sidebar' : 'top'}
       data-focus={focusMode()}
     >
+      <Show when={showFault()}>
+        <div class="ipc-fault" role="alert">
+          <strong>Emerald cannot reach its own core.</strong>
+          <p>
+            {fatal() ??
+              'The window is drawing, but the commands behind it are failing, so nothing you click will take effect.'}
+          </p>
+          <Show when={failures().length}>
+            <ul>
+              <For each={failures().slice(-6)}>
+                {(f) => (
+                  <li>
+                    <code>{f.command}</code> — {f.message}
+                  </li>
+                )}
+              </For>
+            </ul>
+          </Show>
+          <p class="ipc-fault-help">
+            Please report this with the lines above at{' '}
+            <code>github.com/ZDStudios/Emerald/issues</code>. Press F12 for the full console.
+          </p>
+          <button class="btn" onClick={() => setFaultSeen(true)}>
+            Dismiss
+          </button>
+        </div>
+      </Show>
+
       <Show when={showSidebar()}>
         <Sidebar
           state={state}
