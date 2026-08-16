@@ -14,8 +14,16 @@
 //!
 //!   * No UI element in Emerald ever flashes, blinks, pulses, or breathes.
 //!     Not in any theme, not at any animation speed, not for notifications.
-//!   * No telemetry, no crash reporting, no update pings, no phone-home.
-//!     There is no switch for this because there is no code for it.
+//!   * No telemetry, no crash reporting, no analytics, no phone-home.
+//!     There is no switch for these because there is no code for them.
+//!
+//! There is exactly one exception, and it is a setting rather than an
+//! invariant: `privacy.check_for_updates` asks GitHub's public releases API
+//! whether a newer Emerald exists. It was added on request. It sends no
+//! identifier, it runs once per window rather than on a timer, and it can be
+//! switched off — at which point Emerald again makes no request you did not
+//! ask for. This comment used to claim update pings were impossible here; that
+//! stopped being true, so it says so rather than reading well.
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -703,6 +711,19 @@ pub struct Privacy {
     pub clear_site_data_on_exit: bool,
     /// Block third-party cookies.
     pub block_third_party_cookies: bool,
+
+    /// Ask GitHub whether a newer Emerald has been released.
+    ///
+    /// This is the **only** request Emerald ever makes that is not a page you
+    /// asked for, and it is off unless you leave it on. One HTTPS GET to
+    /// `api.github.com/repos/ZDStudios/Emerald/releases/latest` when the window
+    /// opens, and never again while it stays open. No identifier, no account,
+    /// no installation id, nothing about you is sent — GitHub learns that some
+    /// IP address asked a public API a public question, and that is all there
+    /// is to learn. Nothing is downloaded or installed without you clicking.
+    ///
+    /// Turn it off and Emerald never contacts anything on its own again.
+    pub check_for_updates: bool,
 }
 
 impl Default for Privacy {
@@ -713,6 +734,7 @@ impl Default for Privacy {
             global_privacy_control: true,
             clear_site_data_on_exit: false,
             block_third_party_cookies: true,
+            check_for_updates: true,
         }
     }
 }

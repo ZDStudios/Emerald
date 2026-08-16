@@ -1194,3 +1194,36 @@ kbd {
   color: var(--text-faint);
   border-inline-start: 1px solid var(--edge);
 }
+
+/* --- update notice --------------------------------------------------------
+ * Same bar shape as the Web Store offer, same restraint: news, not an alarm.
+ * The accent is on the action only. */
+.update-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--edge);
+  color: var(--text-dim);
+}
+
+.update-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.update-text strong {
+  color: var(--text);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+}
+
+.update-text span {
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+  overflow-wrap: anywhere;
+}

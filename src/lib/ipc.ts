@@ -63,6 +63,25 @@ function invoke<T>(command: string, args?: Record<string, unknown>): Promise<T> 
   });
 }
 
+/* Calls whose failure is ordinary rather than alarming.
+ *
+ * The update check talks to the internet, and not having the internet is a
+ * normal state for a computer to be in. Routing it through `invoke` put
+ * "Emerald cannot reach its own core" across the top of the window every time
+ * a machine was offline or behind a proxy — which is both untrue and exactly
+ * the kind of noise this browser is supposed to not make. Caught by running it
+ * behind a proxy that returns 403 and watching the banner appear.
+ *
+ * These still log to the console; they just do not claim the browser is
+ * broken. Anything that talks to the network belongs here; anything that talks
+ * to Emerald's own core does not. */
+function invokeQuiet<T>(command: string, args?: Record<string, unknown>): Promise<T> {
+  return tauriInvoke<T>(command, args).catch((e) => {
+    console.warn(`emerald: ${command} failed —`, e);
+    throw e;
+  });
+}
+
 export type TabId = number;
 export type SpaceId = number;
 export type TabState = 'live' | 'discarded' | 'archived';
@@ -164,6 +183,15 @@ export interface ExtensionState {
   installed: InstalledExtension[];
 }
 
+export interface UpdateInfo {
+  version: string;
+  current: string;
+  url: string;
+  notes: string;
+  asset_url: string | null;
+  asset_name: string | null;
+}
+
 export interface ProcessMemory {
   pid: number;
   name: string;
@@ -224,10 +252,15 @@ export const ipc = {
   listExtensions: () => invoke<ExtensionState>('list_extensions'),
   installExtension: (path: string) => invoke<InstalledExtension>('install_extension', { path }),
   installFromStore: (id: string, name?: string) =>
-    invoke<InstalledExtension>('install_from_store', { id, name }),
+    invokeQuiet<InstalledExtension>('install_from_store', { id, name }),
   setExtensionEnabled: (id: string, enabled: boolean) =>
     invoke<void>('set_extension_enabled', { id, enabled }),
   removeExtension: (id: string) => invoke<void>('remove_extension', { id }),
+
+  /** null means this is the newest build, or checks are switched off. */
+  checkForUpdate: () => invokeQuiet<UpdateInfo | null>('check_for_update'),
+  downloadUpdate: (url: string, name: string) =>
+    invokeQuiet<string>('download_update', { url, name }),
 };
 
 /** Subscribe to core state pushes. Returns an unlisten function. */

@@ -23,5 +23,6 @@ pub mod runtime;
 pub mod settings;
 pub mod store;
 pub mod tabs;
+pub mod updater;
 
 pub use runtime::run;

@@ -835,6 +835,59 @@ pub async fn install_from_store(
     extensions::install_bytes(&bytes, hint, &dir)
 }
 
+// ---------------------------------------------------------------------------
+// Updates
+// ---------------------------------------------------------------------------
+
+/// Ask GitHub whether a newer Emerald exists. `None` means this is the newest.
+///
+/// Honours `privacy.check_for_updates`: with it off this returns `None`
+/// without making a request, so the setting is enforced here rather than only
+/// in the interface that calls it.
+#[tauri::command]
+pub async fn check_for_update(
+    webview: Webview,
+    app: tauri::AppHandle,
+    core: State<'_, Core>,
+) -> Res<Option<crate::updater::UpdateInfo>> {
+    guard_chrome(&webview)?;
+    if !core.settings.read().privacy.check_for_updates {
+        return Ok(None);
+    }
+    let current = app.package_info().version.to_string();
+    crate::updater::check(&current).await
+}
+
+/// Download a release installer and hand it to the OS to run.
+///
+/// Not a silent in-place update: these builds are unsigned, so there is no
+/// signature to verify and nothing that should be replacing an executable
+/// without a human in the loop. This downloads the installer the user would
+/// have downloaded and opens it; they click through it as usual.
+#[tauri::command]
+pub async fn download_update(
+    webview: Webview,
+    app: tauri::AppHandle,
+    core: State<'_, Core>,
+    url: String,
+    name: String,
+) -> Res<String> {
+    guard_chrome(&webview)?;
+    if !core.settings.read().privacy.check_for_updates {
+        return Err("update checks are switched off in Settings → Privacy".into());
+    }
+    let dir = app
+        .path()
+        .download_dir()
+        .unwrap_or_else(|_| std::env::temp_dir());
+    let path = crate::updater::download(&url, &name, &dir).await?;
+    // Show it in the file manager. Not launch it: an unsigned installer
+    // starting itself because a browser decided to is the exact shape of the
+    // thing this download is trying not to be.
+    let _ = tauri_plugin_opener::reveal_item_in_dir(&path);
+    Ok(path.to_string_lossy().to_string())
+}
+
 #[tauri::command]
 pub fn set_extension_enabled(
     webview: Webview,
@@ -1034,6 +1087,8 @@ pub fn handler() -> impl Fn(tauri::ipc::Invoke) -> bool + Send + Sync + 'static 
         list_extensions,
         install_extension,
         install_from_store,
+        check_for_update,
+        download_update,
         set_extension_enabled,
         remove_extension,
         recent_drafts,

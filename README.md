@@ -90,6 +90,15 @@ typefaces system-wide, so the dyslexia font and reading face apply to **web page
 The other packages don't, so on those the same settings restyle Emerald's own interface
 only. [Details and the fix](docs/architecture.md#9-known-gaps).
 
+## Updates
+
+Emerald asks GitHub once per window whether a newer release exists, and offers to
+download the installer for your platform. It never replaces itself while running:
+these builds are unsigned, so there is no signature to verify, and an unsigned
+binary that silently swaps out an executable is a worse problem than a manual
+click. Settings → Privacy → *Check GitHub for a newer Emerald* turns it off, and
+with it off Emerald makes no request you did not ask for.
+
 ## Documentation
 
 | Doc | What's in it |

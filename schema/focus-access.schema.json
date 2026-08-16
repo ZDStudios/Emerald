@@ -510,6 +510,11 @@
           "description": "Block third-party cookies.",
           "type": "boolean"
         },
+        "check_for_updates": {
+          "default": true,
+          "description": "Ask GitHub whether a newer Emerald has been released.\n\nThis is the **only** request Emerald ever makes that is not a page you\nasked for, and it is off unless you leave it on. One HTTPS GET to\n`api.github.com/repos/ZDStudios/Emerald/releases/latest` when the window\nopens, and never again while it stays open. No identifier, no account,\nno installation id, nothing about you is sent — GitHub learns that some\nIP address asked a public API a public question, and that is all there\nis to learn. Nothing is downloaded or installed without you clicking.\n\nTurn it off and Emerald never contacts anything on its own again.",
+          "type": "boolean"
+        },
         "clear_site_data_on_exit": {
           "default": false,
           "description": "Clear cookies and site data for non-pinned tabs at exit.",
@@ -962,6 +967,7 @@
       "$ref": "#/$defs/Privacy",
       "default": {
         "block_third_party_cookies": true,
+        "check_for_updates": true,
         "clear_site_data_on_exit": false,
         "custom_search_url": "",
         "global_privacy_control": true,

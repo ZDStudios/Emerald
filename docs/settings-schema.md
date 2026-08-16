@@ -17,7 +17,7 @@ Out-of-range values are clamped on load, not rejected. Unknown keys are an
 error, so a typo surfaces instead of silently doing nothing. A file that
 fails to parse is moved aside to `settings.json.bak` and defaults are used.
 
-**69 options** across 8 sections.
+**70 options** across 8 sections.
 
 ## Focus & Access → Attention
 
@@ -229,6 +229,7 @@ What leaves the machine. The short answer is nothing that you did not ask for.
 | Option | Type | Default | Range | Meaning |
 | --- | --- | --- | --- | --- |
 | `block_third_party_cookies` | `boolean` | `true` | — | Block third-party cookies. |
+| `check_for_updates` | `boolean` | `true` | — | Ask GitHub whether a newer Emerald has been released. This is the **only** request Emerald ever makes that is not a page you asked for, and it is off unless you leave it on. One HTTPS GET to `api.github.com/repos/ZDStudios/Emerald/releases/latest` when the window opens, and never again while it stays open. No identifier, no account, no installation id, nothing about you is sent — GitHub learns that some IP address asked a public API a public question, and that is all there is to learn. Nothing is downloaded or installed without you clicking. Turn it off and Emerald never contacts anything on its own again. |
 | `clear_site_data_on_exit` | `boolean` | `false` | — | Clear cookies and site data for non-pinned tabs at exit. |
 | `custom_search_url` | `string` | *(empty)* | — | Custom search URL with `{q}` as the query placeholder. Used when `search_engine` is `Custom`. |
 | `global_privacy_control` | `boolean` | `true` | — | Send `Do Not Track` and `Sec-GPC`. |

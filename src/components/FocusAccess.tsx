@@ -1374,6 +1374,17 @@ function PrivacySection(props: { settings: Settings; patch: Patch }) {
         />
       </Field>
 
+      <Field
+        name="Check GitHub for a newer Emerald"
+        help="One request when a window opens, never on a timer. No identifier, no account, nothing about you — GitHub only learns that an IP address asked a public question. Nothing downloads or installs without you clicking. Turn this off and Emerald makes no request you did not ask for."
+      >
+        <Toggle
+          checked={p().check_for_updates}
+          label="Check for updates"
+          onChange={(v) => props.patch((d) => (d.privacy.check_for_updates = v))}
+        />
+      </Field>
+
       <Field name="Block third-party cookies">
         <Toggle
           checked={p().block_third_party_cookies}

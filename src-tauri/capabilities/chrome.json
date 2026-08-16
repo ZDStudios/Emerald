@@ -15,6 +15,7 @@
     "core:window:allow-scale-factor",
     "core:event:default",
     "opener:allow-open-url",
+    "opener:allow-reveal-item-in-dir",
     "dialog:allow-open",
 
     "allow-get-state",
@@ -50,6 +51,8 @@
     "allow-list-extensions",
     "allow-install-extension",
     "allow-install-from-store",
+    "allow-check-for-update",
+    "allow-download-update",
     "allow-set-extension-enabled",
     "allow-remove-extension",
     "allow-recent-drafts",

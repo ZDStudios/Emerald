@@ -26,6 +26,7 @@ import { Content } from './components/Content';
 import { TopTabs } from './components/TopTabs';
 import { BookmarksBar } from './components/BookmarksBar';
 import { StoreOffer } from './components/StoreOffer';
+import { UpdateNotice } from './components/UpdateNotice';
 
 /** Chords Emerald claims. Must stay in step with OWNED in
  * assets/content/emerald.js and OWNED_SHORTCUTS in commands.rs. */
@@ -317,6 +318,7 @@ export function App() {
           onOpenPanel={setPanel}
           showMenu={!showSidebar()}
         />
+        <UpdateNotice />
         <StoreOffer state={state} />
 
         <Show when={showBookmarks()}>

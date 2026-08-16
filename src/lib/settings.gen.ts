@@ -287,6 +287,8 @@ export interface Predictability {
 export interface Privacy {
   /** Block third-party cookies. */
   block_third_party_cookies: boolean;
+  /** Ask GitHub whether a newer Emerald has been released. This is the **only** request Emerald ever makes that is not a page you asked for, and it is off unless you leave it on. One HTTPS GET to `api.github.com/repos/ZDStudios/Emerald/releases/latest` when the window opens, and never again while it stays open. No identifier, no account, no installation id, nothing about you is sent — GitHub learns that some IP address asked a public API a public question, and that is all there is to learn. Nothing is downloaded or installed without you clicking. Turn it off and Emerald never contacts anything on its own again. */
+  check_for_updates: boolean;
   /** Clear cookies and site data for non-pinned tabs at exit. */
   clear_site_data_on_exit: boolean;
   /** Custom search URL with `{q}` as the query placeholder. Used when `search_engine` is `Custom`. */
@@ -433,6 +435,7 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   "privacy": {
     "block_third_party_cookies": true,
+    "check_for_updates": true,
     "clear_site_data_on_exit": false,
     "custom_search_url": "",
     "global_privacy_control": true,

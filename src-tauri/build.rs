@@ -53,6 +53,8 @@ fn main() {
             "list_extensions",
             "install_extension",
             "install_from_store",
+            "check_for_update",
+            "download_update",
             "set_extension_enabled",
             "remove_extension",
             "recent_drafts",
