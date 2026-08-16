@@ -5,7 +5,8 @@
 # Emerald
 
 **A calm, low-footprint web browser.**
-Ships no rendering engine. Phones home to nothing.
+Ships no rendering engine. Talks to nothing but the pages you open —
+and one update check you can switch off.
 Treats focus and accessibility as the product, not a panel you have to find.
 
 </div>
@@ -130,13 +131,23 @@ That is not a missing feature, it is the engine decision showing its price — W
 Chrome extension system, WKWebView has none, and WebKitGTK's `extensions_path` loads
 compiled `.so` modules that are a different technology with a confusingly similar name.
 
-There is also no Chrome Web Store button anywhere. The Store serves `.crx` files to
-Chrome-branded clients under terms that do not cover other browsers, and Emerald does not
-impersonate Chrome to get around that. What it supports is the two routes Chrome itself
-offers in developer mode: install a `.crx` or `.zip` you downloaded, or point at an
-unpacked folder. Emerald shows each extension's requested permissions — host permissions
-flagged in the needs-attention hue — before you enable it, and never loads extensions into
-its own interface, only into web pages.
+**Installing from the Chrome Web Store** works: open a listing and Emerald offers to
+install it, fetching the package from the same update endpoint Chrome installs from. Worth
+knowing what that is and is not — the Store serves `.crx` files under terms written for
+Chrome-branded clients, and Emerald is not one. It does not impersonate Chrome, hold an
+account, sync anything, or update extensions in the background. It is one download when
+you ask for one. This was added on request; an earlier version of this README said Emerald
+would never do it, and that is no longer true.
+
+The prompt is drawn by the browser, never injected into the page, and the extension id
+comes from the URL rather than from anything the page says — a Store listing is still a web
+page, and a page that can draw a convincing "Install in Emerald" button can draw one
+pointing somewhere else.
+
+The two developer-mode routes also still work: install a `.crx` or `.zip` you downloaded,
+or point at an unpacked folder. However it arrives, Emerald shows the extension's requested
+permissions — host permissions flagged in the needs-attention hue — before you enable it,
+and never loads extensions into its own interface, only into web pages.
 
 ## Build
 
