@@ -30,8 +30,20 @@
 use serde::Serialize;
 use std::path::PathBuf;
 
-const LATEST_RELEASE: &str =
-    "https://api.github.com/repos/ZDStudios/Emerald/releases/latest";
+/// The release *list*, not `/releases/latest`.
+///
+/// `/releases/latest` looks like the obvious endpoint and is the wrong one: it
+/// excludes prereleases, and every Emerald release so far is marked as one. It
+/// returned a flat 404 for this repository, so the update check could never
+/// find anything no matter what was published — a bug that hid perfectly,
+/// because a failed check is deliberately silent and "you are up to date" and
+/// "the request 404'd" look identical from the outside.
+///
+/// The list endpoint includes prereleases. Drafts are invisible to it without
+/// authentication, which is the behaviour we want anyway: a draft is not
+/// released.
+const RELEASES: &str =
+    "https://api.github.com/repos/ZDStudios/Emerald/releases?per_page=20";
 
 /// GitHub asks for a User-Agent and returns 403 without one.
 const AGENT: &str = "Emerald-Browser";
@@ -111,7 +123,7 @@ pub async fn check(current: &str) -> Result<Option<UpdateInfo>, String> {
         .map_err(|e| format!("could not build the HTTP client: {e}"))?;
 
     let response = client
-        .get(LATEST_RELEASE)
+        .get(RELEASES)
         .header("Accept", "application/vnd.github+json")
         .send()
         .await
@@ -130,6 +142,34 @@ pub async fn check(current: &str) -> Result<Option<UpdateInfo>, String> {
         .map_err(|e| format!("could not read GitHub's answer: {e}"))?;
     let body: serde_json::Value =
         serde_json::from_str(&raw).map_err(|e| format!("GitHub's answer was not JSON: {e}"))?;
+
+    // Pick the highest version rather than trusting the order the API returns.
+    // GitHub sorts by creation date, which is not the same thing the moment a
+    // patch for an older line is cut after a newer release.
+    let releases = body.as_array().ok_or("GitHub did not return a release list")?;
+    let Some(body) = releases
+        .iter()
+        .filter(|r| !r.get("draft").and_then(|d| d.as_bool()).unwrap_or(false))
+        .filter(|r| r.get("tag_name").and_then(|t| t.as_str()).is_some())
+        .max_by(|a, b| {
+            let tag = |r: &serde_json::Value| {
+                r.get("tag_name")
+                    .and_then(|t| t.as_str())
+                    .unwrap_or("")
+                    .to_string()
+            };
+            let (x, y) = (tag(a), tag(b));
+            if is_newer(&x, &y) {
+                std::cmp::Ordering::Greater
+            } else if is_newer(&y, &x) {
+                std::cmp::Ordering::Less
+            } else {
+                std::cmp::Ordering::Equal
+            }
+        })
+    else {
+        return Ok(None); // no published releases at all
+    };
 
     let tag = body
         .get("tag_name")

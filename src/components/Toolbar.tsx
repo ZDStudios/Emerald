@@ -124,6 +124,14 @@ export function Toolbar(props: Props) {
           placeholder={`Search or enter address  ·  ${MOD}K for anything`}
           value={shown()}
           onInput={(e) => setDraft(e.currentTarget.value)}
+          /* Select the whole address when the bar is focused, which is what
+           * every other browser does and what makes typing *replace* rather
+           * than insert. Without it, clicking the bar leaves a caret wherever
+           * the pointer landed, so typing a search appends it to the URL
+           * already there — `https://www.google.com/` plus `chrome web store`
+           * becomes a URL, not a search, and lands on a 404. Reported with a
+           * screenshot of exactly that. */
+          onFocus={(e) => e.currentTarget.select()}
           onKeyDown={(e) => {
             if (e.key === 'Enter') commit();
             if (e.key === 'Escape') {

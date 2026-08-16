@@ -535,11 +535,19 @@ pub fn relayout(app: &tauri::AppHandle) {
                 }
                 let _ = wv.set_position(LogicalPosition::new(x, y));
                 let _ = wv.set_size(LogicalSize::new(w, h));
-                // Edge-triggered: showing an already-visible webview is a
-                // no-op everywhere except Windows, where it steals focus.
-                if shown.insert(tab.id) {
-                    let _ = wv.show();
-                }
+                // Unconditional, deliberately, after a reversal.
+                //
+                // This was briefly edge-triggered — show() only on the
+                // transition — to stop Windows moving focus out of the address
+                // bar mid-word. That was a guess at a Windows behaviour that
+                // was never confirmed, and it was immediately followed by
+                // reports of pages rendering but not accepting input and new
+                // tabs not working. Re-asserting visibility every relayout is
+                // what worked before, so it goes back until there is a machine
+                // to test the other version on. A speculative fix that breaks
+                // interaction is worse than the bug it was guessing at.
+                shown.insert(tab.id);
+                let _ = wv.show();
                 // On Linux the two calls above are silently no-ops; this is
                 // what actually moves the webview. See gtk_layout.rs.
                 #[cfg(target_os = "linux")]

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download Emerald</title>
+<meta name="description" content="Download the latest Emerald for Windows, macOS or Linux. The version and file list are fetched from the GitHub release rather than typed into the page.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wordmark">
+    <a href="./" aria-label="Emerald home">
+      <svg viewBox="0 0 512 512" width="34" height="34" aria-hidden="true">
+        <path d="M170 64h172l106 106v172L342 448H170L64 342V170z" fill="#313244" stroke="#45475a" stroke-width="10" stroke-linejoin="round"/>
+        <path d="M181 181h150l43 75-43 75H181l-43-75z" fill="#a6e3a1"/>
+        <path d="M181 181l43 75h150" fill="none" stroke="#1e1e2e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+      </svg>
+    </a>
+    <span>Emerald</span>
+  </div>
+  <nav>
+    <a href="./#memory">Memory</a>
+    <a href="./#access">Access</a>
+    <a href="./#engine">Engine</a>
+    <a href="./#caveats">Caveats</a>
+    <a class="get" href="https://github.com/ZDStudios/Emerald/releases">All releases</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="lede dl-lede">
+  <p class="kicker">Download</p>
+  <h1>Take a copy.</h1>
+  <p class="stand">
+    The version and the file list below are read from the GitHub release when
+    this page loads, not typed into it — so they cannot drift out of date the
+    way a hand-written download page always eventually does.
+  </p>
+  <p class="release-line" id="release-line">
+    <span class="pending">Asking GitHub which release is newest…</span>
+  </p>
+</section>
+
+<!-- Progressive enhancement, and it matters here more than usual: this page's
+     entire job is handing someone a file. It ships with a working link to the
+     releases page, and script replaces it with something better only once the
+     better thing has actually arrived. If GitHub is unreachable, rate-limits
+     the request, or the script never runs, what is left is still a download
+     page that works. -->
+
+<section id="picker">
+  <p class="num">01</p>
+  <h2 id="pick-heading">Your platform</h2>
+
+  <div id="recommended" class="recommended" hidden>
+    <a class="primary-dl" id="primary-dl" href="https://github.com/ZDStudios/Emerald/releases">
+      <span class="pd-os" id="pd-os">Download</span>
+      <span class="pd-file" id="pd-file">—</span>
+      <span class="pd-meta" id="pd-meta"></span>
+    </a>
+    <p class="aside" id="pd-note"></p>
+  </div>
+
+  <noscript>
+    <p class="wide">
+      This page normally fetches the file list from GitHub. Without scripting
+      it cannot, so here is the page it would have read:
+      <a href="https://github.com/ZDStudios/Emerald/releases">all releases</a>.
+    </p>
+  </noscript>
+
+  <p class="wide" id="fallback">
+    <a class="btn" href="https://github.com/ZDStudios/Emerald/releases">Open the releases page</a>
+  </p>
+</section>
+
+<section id="all-files">
+  <p class="num">02</p>
+  <h2>Every file in this release</h2>
+  <p class="wide">
+    Including the ones most people should ignore. Sizes and download counts
+    come from GitHub.
+  </p>
+  <div class="filelist" id="filelist">
+    <p class="pending">Loading…</p>
+  </div>
+</section>
+
+<section id="notes">
+  <p class="num">03</p>
+  <h2>Before you run it</h2>
+  <ul class="flaws">
+    <li><b>The builds are unsigned.</b> macOS refuses to open the app on first launch — right-click it and choose Open, or run <code>xattr -dr com.apple.quarantine /Applications/Emerald.app</code>. Windows SmartScreen warns; More info → Run anyway. Signing certificates cost money this project does not have.</li>
+    <li><b>Windows installs per-user.</b> Into <code>%LOCALAPPDATA%</code>, so there is no administrator prompt. The <code>.msi</code> is there if you need a machine-wide install instead.</li>
+    <li><b>The <code>.deb</code> also installs the reading typefaces</b> system-wide, so the dyslexia font applies to web page text. The AppImage and the other platforms' packages do not.</li>
+    <li><b>The <code>.app.tar.gz</code> files are not for you.</b> They are updater bundles, and Emerald does not use them — take the <code>.dmg</code>.</li>
+    <li><b>Emerald checks for updates itself</b> once per window, and offers to fetch the new installer. One switch in Settings → Privacy turns it off.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="foot-mark">
+    <svg viewBox="0 0 512 512" width="22" height="22" aria-hidden="true">
+      <path d="M170 64h172l106 106v172L342 448H170L64 342V170z" fill="none" stroke="#585b70" stroke-width="16" stroke-linejoin="round"/>
+      <path d="M181 181l43 75h150" fill="none" stroke="#585b70" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <p>
+    <a href="./">Back to the front page</a> ·
+    <a href="https://github.com/ZDStudios/Emerald">Source</a> ·
+    <a href="https://github.com/ZDStudios/Emerald/blob/main/docs/architecture.md">Architecture</a>
+  </p>
+  <p class="colophon">
+    This page runs one script: it asks GitHub's public releases API what exists
+    and renders the answer. No analytics, no third-party anything, and nothing
+    is sent about you — the request is the same one you would make by opening
+    the releases page yourself.
+  </p>
+</footer>
+
+<script>
+/* Fetch the release list and render it.
+ *
+ * `/releases`, not `/releases/latest`. The latter looks like the right
+ * endpoint and is not: it excludes prereleases, and every Emerald release so
+ * far is one, so it returns a 404 for this repository. The same mistake was
+ * live in the browser's own update checker until it was caught by asking the
+ * endpoint what it actually returned. The list includes prereleases; drafts
+ * are invisible to it unauthenticated, which is correct, because a draft is
+ * not released. */
+(function () {
+  var API = 'https://api.github.com/repos/ZDStudios/Emerald/releases?per_page=20';
+
+  function parts(v) {
+    return String(v).replace(/^v/, '').split(/[-+]/)[0].split('.').map(function (n) {
+      return parseInt(n, 10) || 0;
+    });
+  }
+  /* Numeric, not lexical: "0.10.0" sorts below "0.9.0" as a string, which
+     would pin the page to an old release and never say why. */
+  function newer(a, b) {
+    var x = parts(a), y = parts(b);
+    for (var i = 0; i < Math.max(x.length, y.length); i++) {
+      var p = x[i] || 0, q = y[i] || 0;
+      if (p !== q) return p > q;
+    }
+    return false;
+  }
+
+  function platform() {
+    var s = (navigator.userAgent || '') + ' ' + (navigator.platform || '');
+    if (/Win/i.test(s)) return 'windows';
+    if (/Mac|Darwin/i.test(s)) return 'macos';
+    if (/Linux|X11|Ubuntu|Debian/i.test(s)) return 'linux';
+    return null;
+  }
+
+  /* Apple silicon cannot be detected honestly from the user agent — Safari
+     reports Intel on both. Rather than guess and hand someone the wrong disk
+     image, offer the Apple silicon build (what almost every Mac sold since
+     2020 is) and say plainly that the Intel one is in the list below. */
+  function pick(assets, os) {
+    function find(re) {
+      for (var i = 0; i < assets.length; i++) if (re.test(assets[i].name)) return assets[i];
+      return null;
+    }
+    if (os === 'windows') return find(/-setup\.exe$/i);
+    if (os === 'macos') return find(/aarch64\.dmg$/i) || find(/\.dmg$/i);
+    if (os === 'linux') return find(/\.AppImage$/i) || find(/\.deb$/i);
+    return null;
+  }
+
+  function size(bytes) {
+    if (!bytes && bytes !== 0) return '';
+    var mb = bytes / (1024 * 1024);
+    return (mb >= 10 ? mb.toFixed(0) : mb.toFixed(1)) + ' MB';
+  }
+
+  var LABEL = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
+  var NOTE = {
+    windows: 'Installs for the current user, so Windows will not ask for an administrator. SmartScreen will warn — More info → Run anyway.',
+    macos: 'This is the Apple silicon build. If you have an Intel Mac, take the x64 .dmg from the list below. macOS will refuse to open it on first launch — right-click, Open.',
+    linux: 'The AppImage runs anywhere once you chmod +x it. On Debian or Ubuntu the .deb is better — it also installs the reading typefaces system-wide.'
+  };
+
+  function fail(why) {
+    var line = document.getElementById('release-line');
+    line.innerHTML = '<span class="warn">Could not reach GitHub (' + why +
+      '). The releases page below has every file.</span>';
+    document.getElementById('filelist').innerHTML =
+      '<p class="wide"><a href="https://github.com/ZDStudios/Emerald/releases">Open the releases page</a></p>';
+  }
+
+  fetch(API, { headers: { Accept: 'application/vnd.github+json' } })
+    .then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    })
+    .then(function (list) {
+      var published = (list || []).filter(function (r) { return !r.draft && r.tag_name; });
+      if (!published.length) throw new Error('no releases');
+
+      var rel = published.reduce(function (best, r) {
+        return newer(r.tag_name, best.tag_name) ? r : best;
+      });
+      var assets = rel.assets || [];
+      var version = String(rel.tag_name).replace(/^v/, '');
+
+      var when = rel.published_at
+        ? new Date(rel.published_at).toLocaleDateString(undefined,
+            { year: 'numeric', month: 'long', day: 'numeric' })
+        : '';
+      document.getElementById('release-line').innerHTML =
+        '<span class="v">' + version + '</span>' +
+        (when ? '<span class="sep">·</span><span>released ' + when + '</span>' : '') +
+        '<span class="sep">·</span><a href="' + rel.html_url + '">release notes</a>';
+
+      var os = platform();
+      var choice = os ? pick(assets, os) : null;
+      if (choice) {
+        document.getElementById('pd-os').textContent = 'Download for ' + LABEL[os];
+        document.getElementById('pd-file').textContent = choice.name;
+        document.getElementById('pd-meta').textContent =
+          size(choice.size) + ' · version ' + version;
+        document.getElementById('primary-dl').href = choice.browser_download_url;
+        document.getElementById('pd-note').textContent = NOTE[os];
+        document.getElementById('recommended').hidden = false;
+        document.getElementById('pick-heading').textContent =
+          'For your ' + LABEL[os] + ' machine';
+        document.getElementById('fallback').hidden = true;
+      }
+
+      if (!assets.length) {
+        document.getElementById('filelist').innerHTML =
+          '<p class="wide">This release has no files attached yet.</p>';
+        return;
+      }
+
+      var rows = assets.map(function (a) {
+        return '<a class="file" href="' + a.browser_download_url + '">' +
+          '<span class="fname">' + a.name + '</span>' +
+          '<span class="fsize">' + size(a.size) + '</span>' +
+          '<span class="fdl">' + (a.download_count || 0) + ' downloads</span>' +
+          '</a>';
+      }).join('');
+      document.getElementById('filelist').innerHTML = rows;
+    })
+    .catch(function (e) { fail(e && e.message ? e.message : 'network error'); });
+})();
+</script>
+
+</body>
+</html>

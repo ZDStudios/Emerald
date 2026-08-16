@@ -905,9 +905,20 @@ impl Settings {
             return "about:blank".into();
         }
         // Already a URL with a scheme we can hand straight to the engine.
-        if let Ok(u) = url::Url::parse(trimmed) {
-            if matches!(u.scheme(), "http" | "https" | "file" | "about" | "data") {
-                return trimmed.to_string();
+        //
+        // A space disqualifies it, even with a scheme in front. `url::Url` is
+        // lenient and will happily percent-encode spaces into the path, so
+        // `https://www.google.com/chrome web store` parses as a valid URL and
+        // navigates to a 404 instead of searching. That is exactly what
+        // happened to someone whose typing was appended to the address already
+        // in the bar rather than replacing it: a search turned into a broken
+        // link to Google's 404 page. Every other browser treats a spaced
+        // string as a search regardless of what it starts with.
+        if !trimmed.contains(' ') {
+            if let Ok(u) = url::Url::parse(trimmed) {
+                if matches!(u.scheme(), "http" | "https" | "file" | "about" | "data") {
+                    return trimmed.to_string();
+                }
             }
         }
         // `example.com`, `localhost:3000`, `10.0.0.4/status` — host-looking and
@@ -1098,6 +1109,19 @@ mod tests {
         let s = Settings::default();
         assert_eq!(s.resolve_query("example.com"), "https://example.com");
         assert_eq!(s.resolve_query("example.com/a/b"), "https://example.com/a/b");
+    }
+
+    #[test]
+    fn a_url_with_spaces_is_a_search_not_a_url() {
+        // `url::Url` accepts these and encodes the spaces, so without an
+        // explicit guard they navigate to a 404 rather than searching.
+        let s = Settings::default();
+        let out = s.resolve_query("https://www.google.com/chrome web stroe");
+        assert!(out.contains("q="), "should have searched, got {out}");
+        assert!(!out.contains("%20web%20"), "navigated instead of searching: {out}");
+
+        let out2 = s.resolve_query("http://example.com/a b");
+        assert!(out2.contains("q="), "should have searched, got {out2}");
     }
 
     #[test]
