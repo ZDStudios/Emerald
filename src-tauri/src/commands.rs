@@ -784,6 +784,57 @@ pub fn install_extension(
     extensions::install_archive(std::path::Path::new(&path), &dir)
 }
 
+/// Install an extension straight from the Chrome Web Store.
+///
+/// Emerald deliberately has no Web Store *integration* — no account, no sync,
+/// no background updates, and no page in the browser that browses the store.
+/// This is one unauthenticated GET to the same update endpoint Chrome installs
+/// from, made only after the person clicked Install on a prompt Emerald drew
+/// itself. The downloaded package takes exactly the same unpack path as one
+/// picked off disk, because a package from Google is not more trustworthy than
+/// a package from anywhere else — the manifest and its permissions are shown
+/// either way.
+///
+/// Chrome-only command: a page cannot reach this, so a Web Store listing
+/// cannot install itself. The id is validated before it reaches a URL or a
+/// directory name.
+#[tauri::command]
+pub async fn install_from_store(
+    webview: Webview,
+    core: State<'_, Core>,
+    id: String,
+    name: Option<String>,
+) -> Res<InstalledExtension> {
+    guard_chrome(&webview)?;
+    if !extensions::is_store_id(&id) {
+        return Err("that does not look like a Chrome Web Store extension id".into());
+    }
+    let dir = extensions_dir(&core);
+    std::fs::create_dir_all(&dir).map_err(|e| format!("cannot create extensions folder: {e}"))?;
+
+    let url = extensions::store_crx_url(&id);
+    let response = reqwest::get(&url)
+        .await
+        .map_err(|e| format!("could not reach the Chrome Web Store: {e}"))?;
+    if !response.status().is_success() {
+        return Err(format!(
+            "the Chrome Web Store returned {} for that extension",
+            response.status().as_u16()
+        ));
+    }
+    let bytes = response
+        .bytes()
+        .await
+        .map_err(|e| format!("the download did not finish: {e}"))?;
+    if bytes.is_empty() {
+        return Err("the Chrome Web Store sent an empty package".into());
+    }
+
+    // Prefer the listing's own name for the folder; fall back to the id.
+    let hint = name.as_deref().filter(|n| !n.trim().is_empty()).unwrap_or(&id);
+    extensions::install_bytes(&bytes, hint, &dir)
+}
+
 #[tauri::command]
 pub fn set_extension_enabled(
     webview: Webview,
@@ -982,6 +1033,7 @@ pub fn handler() -> impl Fn(tauri::ipc::Invoke) -> bool + Send + Sync + 'static 
         memory_sample,
         list_extensions,
         install_extension,
+        install_from_store,
         set_extension_enabled,
         remove_extension,
         recent_drafts,

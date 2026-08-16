@@ -94,6 +94,15 @@ pub struct Core {
     /// invisible. While this flag is set, `relayout` hides every page webview
     /// so the chrome owns the whole window.
     overlay: AtomicBool,
+    /// Which page webviews are currently shown.
+    ///
+    /// `relayout` runs on every resize and every effect that moves a webview,
+    /// and it used to call `show()` unconditionally each time. On Windows a
+    /// child webview is a real HWND and showing one takes focus, so a relayout
+    /// triggered while the user was typing in the address bar pulled the
+    /// keyboard out of the chrome mid-word. Tracking what is already visible
+    /// makes show/hide edge-triggered, which is also simply less work.
+    shown: Mutex<std::collections::HashSet<TabId>>,
     /// Set while the sampler thread should keep running.
     sampler: Arc<Sampler>,
 }
@@ -252,6 +261,10 @@ pub fn apply_effects(app: &tauri::AppHandle, effects: Vec<Effect>) {
         match effect {
             Effect::Create { id, url } => create_tab_webview(app, id, &url),
             Effect::Destroy { id } => {
+                // Drop the visibility record with the webview, or a tab that is
+                // discarded and later restored would never be shown again: the
+                // new webview would inherit the old one's "already visible".
+                app.state::<Core>().shown.lock().remove(&id);
                 if let Some(wv) = app.get_webview(&tab_label(id)) {
                     // close() destroys the webview; on WebKit that terminates
                     // its web process and returns the memory to the OS.
@@ -502,6 +515,7 @@ pub fn relayout(app: &tauri::AppHandle) {
     } else {
         tabs.panes().to_vec()
     };
+    let mut shown = core.shown.lock();
 
     for tab in tabs.all() {
         let Some(wv) = app.get_webview(&tab_label(tab.id)) else {
@@ -521,14 +535,20 @@ pub fn relayout(app: &tauri::AppHandle) {
                 }
                 let _ = wv.set_position(LogicalPosition::new(x, y));
                 let _ = wv.set_size(LogicalSize::new(w, h));
-                let _ = wv.show();
+                // Edge-triggered: showing an already-visible webview is a
+                // no-op everywhere except Windows, where it steals focus.
+                if shown.insert(tab.id) {
+                    let _ = wv.show();
+                }
                 // On Linux the two calls above are silently no-ops; this is
                 // what actually moves the webview. See gtk_layout.rs.
                 #[cfg(target_os = "linux")]
                 crate::gtk_layout::place(&wv, x, y, w, h);
             }
             None => {
-                let _ = wv.hide();
+                if shown.remove(&tab.id) {
+                    let _ = wv.hide();
+                }
                 #[cfg(target_os = "linux")]
                 crate::gtk_layout::hide(&wv);
             }
@@ -604,6 +624,7 @@ pub fn run() {
                 store: Mutex::new(store),
                 config_dir,
                 overlay: AtomicBool::new(false),
+                shown: Mutex::new(std::collections::HashSet::new()),
                 sampler: sampler.clone(),
             });
 

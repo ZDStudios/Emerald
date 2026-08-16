@@ -223,6 +223,8 @@ export const ipc = {
 
   listExtensions: () => invoke<ExtensionState>('list_extensions'),
   installExtension: (path: string) => invoke<InstalledExtension>('install_extension', { path }),
+  installFromStore: (id: string, name?: string) =>
+    invoke<InstalledExtension>('install_from_store', { id, name }),
   setExtensionEnabled: (id: string, enabled: boolean) =>
     invoke<void>('set_extension_enabled', { id, enabled }),
   removeExtension: (id: string) => invoke<void>('remove_extension', { id }),

@@ -45,6 +45,13 @@ schemars = "1"
 parking_lot = "0.12"
 url = "2"
 
+# Downloading a package from the Chrome Web Store. rustls rather than native-tls
+# so there is no OpenSSL to find at build time on three platforms, and
+# default-features off to leave out cookies, gzip and the blocking client that
+# this one call does not need. It is already in the tree via Tauri, so it costs
+# compile time rather than a new supply chain.
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "charset", "http2", "system-proxy"] }
+
 # Unpacking `.crx` extension archives, which are a header followed by a ZIP.
 # `default-features = false` drops bzip2/zstd/AES/time — an extension package
 # only ever uses store or deflate, and the rest is supply chain we would be

@@ -49,6 +49,7 @@
     "allow-memory-sample",
     "allow-list-extensions",
     "allow-install-extension",
+    "allow-install-from-store",
     "allow-set-extension-enabled",
     "allow-remove-extension",
     "allow-recent-drafts",

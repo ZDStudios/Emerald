@@ -43,6 +43,35 @@ export function Toolbar(props: Props) {
     }
   });
 
+  /* Clear what was typed when the *tab* changes, and only then.
+   *
+   * It used to clear on blur, which is wrong in this browser specifically.
+   * Page webviews are native widgets that get shown, hidden and repositioned
+   * above the chrome whenever the core relayouts, and on Windows that moves
+   * focus for reasons the user had nothing to do with. The address bar would
+   * blur mid-sentence and silently revert to the current URL — indistinguishable
+   * from an address bar that ignores the keyboard, which is exactly how it was
+   * reported. Emerald promises elsewhere that nothing is lost mid-task; the
+   * address bar is not exempt from that. */
+  let lastTab: number | null = null;
+  createEffect(() => {
+    const id = props.state.active;
+    if (id !== lastTab) {
+      lastTab = id;
+      setDraft(null);
+    }
+  });
+
+  /** What Enter will do, so the bar can say so before it is pressed. */
+  const willSearch = () => {
+    const v = draft();
+    if (v == null) return false;
+    const t = v.trim();
+    if (!t) return false;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(t)) return false;
+    return t.includes(' ') || !/^[^\s/]+\.[^\s/]/.test(t.split('/')[0] ?? t);
+  };
+
   const commit = () => {
     const value = draft();
     const id = props.state.active;
@@ -102,8 +131,12 @@ export function Toolbar(props: Props) {
               e.currentTarget.blur();
             }
           }}
-          onBlur={() => setDraft(null)}
         />
+        <Show when={willSearch()}>
+          <span class="omni-hint" aria-hidden="true">
+            search
+          </span>
+        </Show>
       </div>
 
       <button

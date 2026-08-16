@@ -158,12 +158,47 @@ fn strip_line_comments(src: &str) -> String {
 /// asks for before the extension is enabled.
 pub fn install_archive(archive: &Path, dest_dir: &Path) -> Result<InstalledExtension, String> {
     let bytes = std::fs::read(archive).map_err(|e| format!("cannot read archive: {e}"))?;
-    let zip_start = crx_payload_offset(&bytes)?;
+    let stem = archive
+        .file_stem()
+        .map(|s| s.to_string_lossy().to_string())
+        .unwrap_or_else(|| "extension".into());
+    install_bytes(&bytes, &stem, dest_dir)
+}
+
+/// A Chrome Web Store extension id: exactly 32 letters in a–p.
+///
+/// The store encodes ids in base16 over that alphabet, so this is a total
+/// check, not a heuristic. Worth being strict: the id is interpolated into a
+/// URL and used as a directory name.
+pub fn is_store_id(id: &str) -> bool {
+    id.len() == 32 && id.bytes().all(|b| b.is_ascii_lowercase() && b <= b'p')
+}
+
+/// The Web Store's own CRX endpoint — the one Chrome itself updates from.
+///
+/// There is no public API for "download this extension", but this update
+/// endpoint is unauthenticated and returns the same package Chrome installs.
+/// `prodversion` has to look like a real Chrome or the service refuses.
+pub fn store_crx_url(id: &str) -> String {
+    format!(
+        "https://clients2.google.com/service/update2/crx         ?response=redirect&acceptformat=crx2,crx3&prodversion=120.0.0.0&x=id%3D{id}%26uc"
+    )
+}
+
+/// Install a package already in memory. Shared by the file picker and the
+/// Web Store download, so both take exactly the same unpack and validation
+/// path — a downloaded package gets no more trust than a local one.
+pub fn install_bytes(
+    bytes: &[u8],
+    id_hint: &str,
+    dest_dir: &Path,
+) -> Result<InstalledExtension, String> {
+    let zip_start = crx_payload_offset(bytes)?;
     let cursor = std::io::Cursor::new(&bytes[zip_start..]);
     let mut zip =
         zip::ZipArchive::new(cursor).map_err(|e| format!("not a valid extension package: {e}"))?;
 
-    let id = derive_id(archive, dest_dir);
+    let id = derive_id(id_hint, dest_dir);
     let target = dest_dir.join(&id);
     std::fs::create_dir_all(&target).map_err(|e| format!("cannot create {id}: {e}"))?;
 
@@ -214,11 +249,7 @@ fn crx_payload_offset(bytes: &[u8]) -> Result<usize, String> {
 }
 
 /// A directory name that is stable, filesystem-safe, and not already taken.
-fn derive_id(archive: &Path, dest_dir: &Path) -> String {
-    let stem = archive
-        .file_stem()
-        .map(|s| s.to_string_lossy().to_string())
-        .unwrap_or_else(|| "extension".into());
+fn derive_id(stem: &str, dest_dir: &Path) -> String {
     let base: String = stem
         .chars()
         .map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '-' })

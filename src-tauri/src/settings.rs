@@ -890,14 +890,34 @@ impl Settings {
         }
         // `example.com`, `localhost:3000`, `10.0.0.4/status` — host-looking and
         // space-free, so treat as a URL rather than a search.
-        let looks_like_host = !trimmed.contains(' ')
-            && (trimmed.starts_with("localhost")
-                || trimmed
-                    .split('/')
-                    .next()
-                    .is_some_and(|h| h.split(':').next().is_some_and(host_has_tld)));
+        let host = trimmed.split('/').next().unwrap_or(trimmed);
+        let bare = host.split(':').next().unwrap_or(host);
+        // A bare IPv4 literal is a host, not a search. `host_has_tld` asks for
+        // an alphabetic last label, so `127.0.0.1:3000` used to be handed to
+        // the search engine — which is a strange thing for a browser to do
+        // with an address.
+        let is_ipv4 = !bare.is_empty()
+            && bare.split('.').count() == 4
+            && bare
+                .split('.')
+                .all(|o| !o.is_empty() && o.len() <= 3 && o.bytes().all(|b| b.is_ascii_digit()));
+        let loopback = bare == "localhost"
+            || bare == "127.0.0.1"
+            || bare == "[::1]"
+            || bare.ends_with(".localhost");
+        let looks_like_host =
+            !trimmed.contains(' ') && (loopback || is_ipv4 || host_has_tld(bare));
         if looks_like_host {
-            return format!("https://{trimmed}");
+            // `localhost` and loopback literals get http, everything else https.
+            //
+            // Nothing serves https on localhost without a certificate someone
+            // had to go and make, so defaulting a dev server to https turns
+            // `localhost:8899` into a connection error and makes the address
+            // bar look broken. Every other browser special-cases loopback the
+            // same way. Found by typing `localhost:8899` at a local server and
+            // watching Emerald navigate confidently to `https://localhost:8899`.
+            let scheme = if loopback { "http" } else { "https" };
+            return format!("{scheme}://{trimmed}");
         }
         let template = self
             .privacy
@@ -1027,7 +1047,7 @@ mod tests {
         let s = Settings::default();
         assert_eq!(s.resolve_query("https://a.example/x"), "https://a.example/x");
         assert_eq!(s.resolve_query("example.com"), "https://example.com");
-        assert_eq!(s.resolve_query("localhost:1420"), "https://localhost:1420");
+        assert_eq!(s.resolve_query("localhost:1420"), "http://localhost:1420");
         assert!(s.resolve_query("how do i tie a bowline").contains("duckduckgo"));
         assert!(s.resolve_query("how do i tie a bowline").contains("bowline"));
         // A bare word is a search, not a hostname.
@@ -1038,5 +1058,34 @@ mod tests {
     fn unknown_keys_are_rejected_so_typos_surface() {
         let json = r#"{"focus_acess":{}}"#;
         assert!(serde_json::from_str::<Settings>(json).is_err());
+    }
+
+    #[test]
+    fn loopback_resolves_to_http_not_https() {
+        // Nothing serves https on localhost without a certificate someone made,
+        // so defaulting a dev server to https is a guaranteed connection error.
+        let s = Settings::default();
+        assert_eq!(s.resolve_query("localhost:8899"), "http://localhost:8899");
+        assert_eq!(s.resolve_query("localhost"), "http://localhost");
+        assert_eq!(s.resolve_query("127.0.0.1:3000"), "http://127.0.0.1:3000");
+        assert_eq!(s.resolve_query("app.localhost"), "http://app.localhost");
+    }
+
+    #[test]
+    fn public_hosts_still_resolve_to_https() {
+        let s = Settings::default();
+        assert_eq!(s.resolve_query("example.com"), "https://example.com");
+        assert_eq!(s.resolve_query("example.com/a/b"), "https://example.com/a/b");
+    }
+
+    #[test]
+    fn a_sentence_is_a_search_not_a_host() {
+        let s = Settings::default();
+        let out = Settings::default().resolve_query("how much is a cat");
+        assert!(out.starts_with("http"), "{out}");
+        assert!(out.contains("how"), "{out}");
+        // and it must not have been mistaken for a hostname
+        assert!(!out.starts_with("https://how"), "{out}");
+        let _ = s;
     }
 }

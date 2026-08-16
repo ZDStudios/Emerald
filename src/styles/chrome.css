@@ -1147,3 +1147,50 @@ kbd {
   color: var(--text-muted);
   font-size: var(--text-xs);
 }
+
+/* --- Chrome Web Store install offer ---------------------------------------
+ *
+ * A bar under the toolbar, in the chrome's own surface rather than injected
+ * into the page. It uses the accent for the action and nothing else: this is
+ * an offer, not a warning, and it must not read as one. */
+.store-offer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--edge);
+  color: var(--text-dim);
+}
+
+.store-offer-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.store-offer-text strong {
+  color: var(--text);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+}
+
+.store-offer-text span {
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+}
+
+/* The address bar's "this will search" tell. Sits inside the omnibox at the
+ * trailing edge, so the bar says what Enter will do before it is pressed
+ * rather than after. */
+.omni-hint {
+  flex: none;
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border-inline-start: 1px solid var(--edge);
+}

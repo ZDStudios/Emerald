@@ -52,6 +52,7 @@ fn main() {
             "memory_sample",
             "list_extensions",
             "install_extension",
+            "install_from_store",
             "set_extension_enabled",
             "remove_extension",
             "recent_drafts",
