@@ -1,396 +1,250 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Emerald — a calm, low-footprint browser</title>
-    <meta
-      name="description"
-      content="A minimalist desktop browser built on the operating system's own web engine. Ships no engine, phones home to nothing, and treats focus and accessibility as the product."
-    />
-    <meta name="color-scheme" content="dark" />
-    <meta property="og:title" content="Emerald — a calm, low-footprint browser" />
-    <meta
-      property="og:description"
-      content="Ships no rendering engine. Phones home to nothing. Focus and accessibility as the product, not a panel you have to find."
-    />
-    <meta property="og:type" content="website" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <!-- Fonts are self-hosted. A site for a browser that opens no connection you
-         did not ask for should not load its typefaces from someone else's CDN. -->
-    <link rel="stylesheet" href="fonts/fonts.css" />
-    <link rel="stylesheet" href="style.css" />
-  </head>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emerald — a calm browser</title>
+<meta name="description" content="A desktop browser that ships no rendering engine, releases the memory of tabs you are not using, and treats focus and accessibility as the product.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="style.css">
+<meta property="og:title" content="Emerald — a calm browser">
+<meta property="og:description" content="Ships no rendering engine. Releases the memory of tabs you are not using. 1.28 s to first paint, measured.">
+<meta property="og:type" content="website">
+</head>
+<body>
 
-  <body>
-    <header class="site">
-      <div class="wrap">
-        <a class="brand" href="#top" style="text-decoration: none">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z" />
-            <path d="M8.5 8.5h7l2 3.5-2 3.5h-7l-2-3.5z" />
-          </svg>
-          <span>Emerald</span>
-        </a>
-        <nav>
-          <a href="#what">What it is</a>
-          <a href="#access">Focus &amp; Access</a>
-          <a href="#numbers">Numbers</a>
-          <a href="#download">Download</a>
-          <a href="https://github.com/ZDStudios/Emerald">Source</a>
-        </nav>
-      </div>
-    </header>
+<!-- The page is a document, not a funnel. Sections are numbered in the margin
+     the way a spec is, because that is what this is: an argument with evidence,
+     laid out to be read top to bottom or skimmed by heading. -->
 
-    <main id="top">
-      <!-- ================================================================== -->
-      <section class="hero">
-        <div class="wrap">
-          <h1 class="rise">A browser that <em>gets out of the way</em>.</h1>
-          <p class="lede rise rise-2">
-            Emerald ships no rendering engine — it uses the one your operating system
-            already has. Nothing autoplays, nothing flashes, nothing reorders itself, and
-            the tab you forgot about on Tuesday gets its memory taken back.
-          </p>
-          <div class="cta rise rise-3">
-            <a class="btn primary facet-sm" href="#download">Download</a>
-            <a class="btn facet-sm" href="https://github.com/ZDStudios/Emerald">Read the source</a>
-            <span class="cta-note">MPL-2.0 · macOS, Windows, Linux</span>
-          </div>
+<header class="masthead">
+  <div class="wordmark">
+    <svg viewBox="0 0 512 512" width="34" height="34" aria-hidden="true">
+      <path d="M170 64h172l106 106v172L342 448H170L64 342V170z" fill="#313244" stroke="#45475a" stroke-width="10" stroke-linejoin="round"/>
+      <path d="M181 181h150l43 75-43 75H181l-43-75z" fill="#a6e3a1"/>
+      <path d="M181 181l43 75h150" fill="none" stroke="#1e1e2e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+    </svg>
+    <span>Emerald</span>
+  </div>
+  <nav>
+    <a href="#memory">Memory</a>
+    <a href="#access">Access</a>
+    <a href="#engine">Engine</a>
+    <a href="#caveats">Caveats</a>
+    <a class="get" href="https://github.com/ZDStudios/Emerald/releases/latest">Download</a>
+  </nav>
+</header>
 
-          <figure class="shot facet rise rise-4">
-            <img
-              src="shots/01-browser.png"
-              alt="Emerald showing an article, with a vertical tab sidebar on the left. One tab in the strip is dimmed and marked with a closed-eye glyph, indicating its memory has been released."
-              width="1440" height="900" loading="eager" />
-            <figcaption>
-              The second tab is <em>resting</em> — its web process has been terminated and
-              its memory returned to the system. It reloads when you click it.
-            </figcaption>
-          </figure>
-        </div>
-      </section>
+<main>
 
-      <!-- ================================================================== -->
-      <section id="what">
-        <div class="wrap split">
-          <div>
-            <p class="label">What it is</p>
-            <h2>A native shell around the engine you already have.</h2>
-            <p class="dim">
-              Chrome, Edge, Arc, Brave and Opera all ship the same engine, and each ships
-              its own copy. Emerald ships none. On macOS and Linux it renders with WebKit;
-              the download is about six megabytes, and the engine's code is already in
-              memory, shared with every other app using it.
-            </p>
-            <p class="dim">
-              That is the whole trick, and it has a price. Here is the price.
-            </p>
-          </div>
+<section class="lede">
+  <p class="kicker">Desktop browser · Linux, macOS, Windows</p>
+  <h1>A browser that gets<br>out of the way, and<br>gives the memory back.</h1>
+  <p class="stand">
+    Emerald ships no rendering engine of its own — it borrows the one already
+    sitting in your operating system. Tabs you stop using have their processes
+    terminated and their memory returned, not merely greyed out. The
+    accessibility settings are the product rather than a panel you have to go
+    looking for.
+  </p>
+  <p class="actions">
+    <a class="btn" href="https://github.com/ZDStudios/Emerald/releases/latest">Download</a>
+    <a class="btn quiet" href="https://github.com/ZDStudios/Emerald">Read the source</a>
+  </p>
+  <p class="fineprint">
+    Free, MPL-2.0, no account. The builds are unsigned, so macOS and Windows
+    will both warn you on first launch — <a href="https://github.com/ZDStudios/Emerald#install">what to click</a>.
+  </p>
+</section>
 
-          <div>
-            <table>
-              <thead>
-                <tr><th>Platform</th><th>Engine</th><th>Chromium?</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>Linux</td><td>WebKitGTK</td><td class="no">No</td></tr>
-                <tr><td>macOS</td><td>WKWebView</td><td class="no">No</td></tr>
-                <tr><td>Windows</td><td>WebView2</td><td class="yes">Yes</td></tr>
-              </tbody>
-            </table>
-            <p class="dim" style="font-size: 14px; margin-top: 18px">
-              On Windows there is no non-Chromium webview to build on, so Emerald renders
-              with Chromium there. Saying otherwise would be marketing. Everything else —
-              the tab policy, the accessibility layer, the settings model — is identical on
-              all three.
-            </p>
-          </div>
-        </div>
-      </section>
+<figure class="shot bleed">
+  <img src="shots/01-browser.png" alt="Emerald showing an article. A vertical tab sidebar sits on the left; the second tab is dimmed and marked with a closed-eye glyph." loading="lazy" decoding="async">
+  <figcaption>
+    <span class="mark">Fig. 1</span>
+    The second tab is <em>resting</em>. Its web process has been terminated and
+    its memory handed back to the system. Clicking it reloads the page and
+    restores the scroll position.
+  </figcaption>
+</figure>
 
-      <!-- ================================================================== -->
-      <section id="access">
-        <div class="wrap">
-          <p class="label">Focus &amp; Access</p>
-          <h2>Built for brains that don't work the default way.</h2>
-          <p class="dim" style="margin-bottom: 40px">
-            Not an accessibility panel bolted onto a browser. 69 settings, grouped
-            by what they are actually for, reachable from anywhere with one keystroke — and
-            most of the useful ones are on by default, because a calm baseline should not
-            be something you have to go and find.
-          </p>
+<section id="memory">
+  <p class="num">01</p>
+  <h2>Suspension that actually frees memory</h2>
+  <div class="cols">
+    <div class="prose">
+      <p>
+        Most browsers "suspend" a tab by leaving the process alive and hoping
+        the allocator gives something back. Emerald destroys the webview. The
+        operating system reclaims the pages, and you can watch the process
+        count drop while it happens.
+      </p>
+      <p>
+        The ceiling is a number you set. Past it, the least recently used tab
+        that is not pinned and not on screen goes to rest. Tabs on screen are
+        never chosen — a policy with 13 tests behind it, including one named
+        after the mistake it prevents.
+      </p>
+    </div>
+    <dl class="figures">
+      <div><dt>Binary, Linux x86-64</dt><dd>7.2 <span>MB</span></dd></div>
+      <div><dt>Chrome window, one tab</dt><dd>11 <span>processes</span></dd></div>
+      <div><dt>Emerald, same page</dt><dd>5 <span>processes</span></dd></div>
+      <div><dt>Cold start to painted chrome</dt><dd>1.28 <span>s</span></dd></div>
+    </dl>
+  </div>
+  <p class="aside">
+    Measured on one machine, under Xvfb with software rendering, by
+    <a href="https://github.com/ZDStudios/Emerald/blob/main/bench/bench.py">a script in the repository</a>.
+    Reproducible, not universal — and the per-tab marginal cost is
+    <em>worse</em> than Chromium's, which is written down in the benchmarks
+    rather than left out of them.
+  </p>
+</section>
 
-          <div class="four facet">
-            <div class="cell">
-              <span class="tag">Attention</span>
-              <p>Fewer things asking for a response.</p>
-              <ul>
-                <li>A hard ceiling on how many tabs stay awake</li>
-                <li>Idle tabs archived, never deleted</li>
-                <li>Focus mode: dim everything, or one thing at a time</li>
-                <li>Animation speed down to zero</li>
-              </ul>
-            </div>
-            <div class="cell">
-              <span class="tag">Predictability</span>
-              <p>Nothing moves without being asked.</p>
-              <ul>
-                <li>Autoplay blocked before the page's own scripts run</li>
-                <li>Scroll anchoring, so late banners don't push your line</li>
-                <li>Tabs never reorder themselves</li>
-                <li>Muted and high-contrast colour profiles</li>
-              </ul>
-            </div>
-            <div class="cell">
-              <span class="tag">Reading</span>
-              <p>Typography you can actually change.</p>
-              <ul>
-                <li>OpenDyslexic and Atkinson Hyperlegible built in</li>
-                <li>Letter, word, line and paragraph spacing past the WCAG floors</li>
-                <li>A reading ruler that follows pointer or keyboard</li>
-                <li>Measure limiting, on any page</li>
-              </ul>
-            </div>
-            <div class="cell">
-              <span class="tag">Input</span>
-              <p>Nothing you typed is ever lost.</p>
-              <ul>
-                <li>Every web form field autosaved locally as you type</li>
-                <li>Passwords and card numbers deliberately excluded</li>
-                <li>44px minimum hit targets without reflowing the page</li>
-                <li>Enter-to-submit guard for half-written forms</li>
-              </ul>
-            </div>
-          </div>
+<section id="access">
+  <p class="num">02</p>
+  <h2>Focus &amp; Access is not a checkbox page</h2>
+  <p class="wide">
+    69 settings across attention, predictability, reading and input. Every one
+    of them says what it costs you as well as what it does, because a setting
+    that hides its downside gets switched on and then blamed. Two clicks from
+    anywhere, or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd>.
+  </p>
 
-          <div class="strip">
-            <figure>
-              <img src="shots/03-focus-access.png" alt="The Focus and Access settings panel, Attention section, showing sliders for how many tabs stay awake and how long before idle tabs rest." loading="lazy" />
-              <figcaption>Every setting says what it costs you, not just what it does.</figcaption>
-            </figure>
-            <figure>
-              <img src="shots/04-reading.png" alt="The Reading settings section, showing a live type specimen above controls for typeface and spacing." loading="lazy" />
-              <figcaption>Spacing is not a number you can judge. So the specimen is the control.</figcaption>
-            </figure>
-          </div>
-        </div>
-      </section>
+  <div class="pair">
+    <figure class="shot">
+      <img src="shots/03-focus-access.png" alt="The Focus and Access panel, Attention section, showing sliders for tab ceiling and idle timers." loading="lazy" decoding="async">
+      <figcaption><span class="mark">Fig. 2</span> Attention.</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="shots/04-reading.png" alt="Reading settings with a live type specimen above the typeface and spacing controls." loading="lazy" decoding="async">
+      <figcaption><span class="mark">Fig. 3</span> Reading. The specimen is the control — spacing is not a number anyone can judge in the abstract.</figcaption>
+    </figure>
+  </div>
 
-      <!-- ================================================================== -->
-      <section id="familiar">
-        <div class="wrap split">
-          <div>
-            <p class="label">Make it yours</p>
-            <h2>Or make it look like the browser you already use.</h2>
-            <p class="dim">
-              Emerald's default is a vertical sidebar, because a horizontal strip turns into
-              a row of indistinguishable favicons exactly when you have enough tabs to need
-              to tell them apart. But a familiar shape costs nothing to learn, and making
-              someone relearn tab management on day one is its own barrier — so the
-              Chrome-shaped layout is one click, not a fork.
-            </p>
-            <p class="dim">
-              Four Catppuccin flavours, seven accents, three densities, and colour profiles
-              that change how loud things are without ever changing what a colour means.
-            </p>
-          </div>
-          <figure style="margin: 0; border: 1px solid var(--surface0); background: var(--mantle); overflow: hidden">
-            <img src="shots/05-chrome-like.png" alt="Emerald in its Chrome-like layout: a horizontal tab strip with always-visible close buttons and a bookmarks bar, in the Macchiato theme with a sapphire accent." loading="lazy" style="display:block;width:100%;height:auto" />
-            <figcaption style="font-family: var(--font-ui); font-size: 12px; color: var(--overlay1); padding: 10px 14px; border-top: var(--rule)">
-              Chrome-like preset · Macchiato · sapphire accent
-            </figcaption>
-          </figure>
-        </div>
-      </section>
+  <ul class="claims">
+    <li><b>Nothing flashes.</b> No element in Emerald blinks, pulses or breathes, in any theme, at any animation speed, for any notification. It is enforced in one CSS line, not requested in a style guide.</li>
+    <li><b>Nothing autoplays.</b> The guard patches the media prototype before page scripts run, so a site cannot beat it to the punch.</li>
+    <li><b>Nothing you type is lost.</b> Text fields are saved locally as you go, and a recovered draft is offered back after a crash or a misclick. Password and payment fields are excluded by a deliberately broad rule.</li>
+    <li><b>Motion has an off switch that means off.</b> Not "reduced" — zero, with transitions becoming instant rather than removed, so nothing jumps.</li>
+  </ul>
+</section>
 
-      <!-- ================================================================== -->
-      <section id="numbers">
-        <div class="wrap">
-          <p class="label">Measured, not claimed</p>
-          <h2>Every number here came off a machine.</h2>
-          <p class="dim">
-            Against a Chromium build on the same computer, same pages, same display, using
-            the same sampling code. Proportional set size — the number that accounts for
-            shared memory honestly.
-          </p>
+<section id="engine">
+  <p class="num">03</p>
+  <h2>The engine, stated before you ask</h2>
+  <div class="cols">
+    <div class="prose">
+      <p>
+        Emerald is a Rust shell around whatever web engine your system already
+        has. That is the whole reason the download is single-digit megabytes
+        and there is no updater service, no crash reporter and no field-trial
+        client running behind it — none of that was ever linked in.
+      </p>
+      <p>
+        It also means one honest gap, which belongs here rather than in a
+        footnote: <b>on Windows, Emerald renders with Chromium.</b> Tauri has
+        no non-Chromium Windows backend and neither does anything else that
+        ships today.
+      </p>
+    </div>
+    <table class="engines">
+      <thead><tr><th>Platform</th><th>Engine</th><th>Chromium?</th></tr></thead>
+      <tbody>
+        <tr><td>Linux</td><td>WebKitGTK</td><td class="no">No</td></tr>
+        <tr><td>macOS</td><td>WKWebView</td><td class="no">No</td></tr>
+        <tr><td>Windows</td><td>WebView2</td><td class="yes">Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-          <div class="figures facet" style="margin-top: 36px">
-            <div class="figure">
-              <span class="num good">64%</span>
-              <span class="cap">of Chromium's memory,<br />one tab idle</span>
-            </div>
-            <div class="figure">
-              <span class="num good">904 MB</span>
-              <span class="cap">returned when 8 tabs<br />drop to 2 awake</span>
-            </div>
-            <div class="figure">
-              <span class="num good">6</span>
-              <span class="cap">web processes actually<br />terminated, not throttled</span>
-            </div>
-            <div class="figure">
-              <span class="num good">0</span>
-              <span class="cap">background timers<br />when nothing needs one</span>
-            </div>
-            <div class="figure">
-              <span class="num">6.0 MB</span>
-              <span class="cap">download.<br />No bundled engine</span>
-            </div>
-          </div>
+<section id="familiar">
+  <p class="num">04</p>
+  <h2>Or make it look like the browser you already use</h2>
+  <p class="wide">
+    The vertical sidebar is the default because a horizontal strip degrades
+    into a row of indistinguishable favicons. But "looks like the thing I
+    already know" is a real accessibility property, so the Chrome-shaped
+    layout is one click away and nothing is hidden behind it.
+  </p>
+  <figure class="shot bleed">
+    <img src="shots/05-chrome-like.png" alt="Emerald in its Chrome-like layout: a horizontal tab strip and a bookmarks bar, in the Macchiato theme." loading="lazy" decoding="async">
+    <figcaption><span class="mark">Fig. 4</span> The Chrome-like preset — top tab strip, bookmarks bar, Macchiato. Four Catppuccin flavours, seven accents, three densities.</figcaption>
+  </figure>
+</section>
 
-          <div class="split" style="margin-top: 56px">
-            <div class="caveats">
-              <div>
-                <h3>And here's where it loses</h3>
-                <p class="dim">
-                  Emerald's cost per additional awake tab is about 24 MB. Chromium's is
-                  about 11. It wins on the floor, not the slope — what keeps the totals
-                  down at twenty tabs is the discard policy, not per-tab efficiency.
-                </p>
-              </div>
-              <div>
-                <h3>Startup is 1.3 seconds</h3>
-                <p class="dim">
-                  The Rust core is ready in 27 ms. The remaining second is the interface
-                  loading, and it has not been optimised or even properly attributed yet.
-                  That is slower than it should be.
-                </p>
-              </div>
-              <div>
-                <h3>One machine, one platform</h3>
-                <p class="dim">
-                  Linux, software rendering, a browser that has been open for ten seconds.
-                  Not macOS, not Windows, not a six-hour session with a warm cache.
-                </p>
-              </div>
-            </div>
+<section id="caveats">
+  <p class="num">05</p>
+  <h2>What is wrong with it</h2>
+  <p class="wide">
+    Every project's site has a features list. This is the other one. None of
+    these are secrets — they are in
+    <a href="https://github.com/ZDStudios/Emerald/blob/main/docs/architecture.md#9-known-gaps">§9 of the architecture notes</a>
+    too, and they are here at the same size as everything above.
+  </p>
+  <ul class="flaws">
+    <li><b>Windows means Chromium.</b> The one platform where most people are is the one where the engine argument does not hold.</li>
+    <li><b>Per-tab memory is worse than Chromium's.</b> Emerald wins on the floor and on what it releases, not on the marginal tab.</li>
+    <li><b>No dictation on Linux.</b> WebKitGTK ships no speech recognition, and Emerald contains no speech model, so the button says so instead of pretending.</li>
+    <li><b>Extensions run on Windows only.</b> WKWebView and WebKitGTK have nothing to run them with. That is the engine decision showing its price.</li>
+    <li><b>Reading fonts reach web pages on the <code>.deb</code> and a dev checkout only.</b> The other packages install no system fonts, so on those the dyslexia face restyles Emerald's own interface but not the page.</li>
+    <li><b>Four settings are stored and shown but not yet wired</b> to anything the engine does. They are listed as such rather than quietly doing nothing.</li>
+    <li><b>It is version 0.1.1.</b> A working skeleton with real tests, not a browser to move your life into yet.</li>
+  </ul>
+</section>
 
-            <div>
-              <h3>Why say any of that</h3>
-              <p class="dim">
-                Because a benchmark that only lists its wins is an advertisement, and you
-                cannot check an advertisement. The harness, the fixture pages and the raw
-                JSON are all in the repository. Run it yourself:
-              </p>
-              <p><code>CHROMIUM=/path/to/chrome ./bench/run.sh</code></p>
-              <p class="dim">
-                An earlier version of the benchmark reported a 261 ms startup. It was
-                wrong — the binary had silently failed to load its own interface, so it
-                started fast because there was nothing to start. That correction is still
-                in the docs, because deleting it would be the dishonest move.
-              </p>
-              <p><a href="https://github.com/ZDStudios/Emerald/blob/main/docs/benchmarks.md">Full method and raw numbers →</a></p>
-            </div>
-          </div>
-        </div>
-      </section>
+<section id="download" class="get-it">
+  <p class="num">06</p>
+  <h2>Take a copy</h2>
+  <div class="platforms">
+    <a class="plat" href="https://github.com/ZDStudios/Emerald/releases/latest">
+      <span class="os">Windows</span>
+      <span class="file">Emerald_0.1.1_x64-setup.exe</span>
+      <span class="note">Installs per-user. No administrator prompt.</span>
+    </a>
+    <a class="plat" href="https://github.com/ZDStudios/Emerald/releases/latest">
+      <span class="os">macOS</span>
+      <span class="file">Emerald_0.1.1_aarch64.dmg</span>
+      <span class="note">Apple silicon, and an Intel build beside it.</span>
+    </a>
+    <a class="plat" href="https://github.com/ZDStudios/Emerald/releases/latest">
+      <span class="os">Linux</span>
+      <span class="file">Emerald_0.1.1_amd64.deb</span>
+      <span class="note">Or the AppImage. The .deb also installs the reading fonts.</span>
+    </a>
+  </div>
+  <p class="aside">
+    Emerald checks GitHub once per window for a newer release and offers to
+    fetch the installer. It never replaces itself while running, and the check
+    is one switch in Settings → Privacy away from off — after which it contacts
+    nothing you did not ask it to.
+  </p>
+</section>
 
-      <!-- ================================================================== -->
-      <section>
-        <div class="wrap">
-          <p class="label">Not settings, on purpose</p>
-          <h2>Three things Emerald will not do.</h2>
-          <p class="dim" style="margin-bottom: 36px">
-            There is no switch for any of these, because there is no code for them.
-          </p>
+</main>
 
-          <div class="nevers facet">
-            <div class="never">
-              <strong>Nothing phones home.</strong>
-              <p>
-                No telemetry, no crash reporting, no update ping, no account. Even page
-                prefetch is off by default, so Emerald opens the connections you asked for
-                and no others.
-              </p>
-            </div>
-            <div class="never">
-              <strong>Nothing in the interface flashes, blinks, pulses or breathes.</strong>
-              <p>
-                In any theme, at any animation speed, for any reason. This is enforced by a
-                global CSS rule that cancels every looping animation, not by everyone
-                remembering the guideline.
-              </p>
-            </div>
-            <div class="never">
-              <strong>Colour meaning never moves.</strong>
-              <p>
-                Red is destructive, yellow needs attention, the accent means "this is
-                yours". Change the theme or the accent and those stay put, so what you
-                learned on day one is still true on day ninety.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+<footer>
+  <div class="foot-mark">
+    <svg viewBox="0 0 512 512" width="22" height="22" aria-hidden="true">
+      <path d="M170 64h172l106 106v172L342 448H170L64 342V170z" fill="none" stroke="#585b70" stroke-width="16" stroke-linejoin="round"/>
+      <path d="M181 181l43 75h150" fill="none" stroke="#585b70" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <p>
+    Built in the open ·
+    <a href="https://github.com/ZDStudios/Emerald">Source</a> ·
+    <a href="https://github.com/ZDStudios/Emerald/blob/main/docs/architecture.md">Architecture</a> ·
+    <a href="https://github.com/ZDStudios/Emerald/blob/main/docs/benchmarks.md">Benchmarks</a> ·
+    <a href="https://github.com/ZDStudios/Emerald/blob/main/docs/design-language.md">Design language</a>
+  </p>
+  <p class="colophon">
+    Set in JetBrains Mono and Atkinson Hyperlegible, both self-hosted. Colours
+    are Catppuccin Mocha. No analytics on this page — there is no script on it
+    at all.
+  </p>
+</footer>
 
-      <!-- ================================================================== -->
-      <section id="download">
-        <div class="wrap">
-          <p class="label">Download</p>
-          <h2>Builds are unsigned. Here's what that means.</h2>
-          <p class="dim">
-            macOS will refuse to open the app the first time — right-click it and choose
-            Open. Windows SmartScreen will warn you; choose More info, then Run anyway.
-            Code-signing certificates cost money this project does not have, and telling
-            you now is better than letting you find out.
-          </p>
-
-          <div class="downloads facet">
-            <div class="dl">
-              <h3>macOS</h3>
-              <span class="engine">WebKit · not Chromium</span>
-              <p class="dim" style="font-size: 14px">Apple silicon and Intel.</p>
-              <div class="files">
-                <a href="https://github.com/ZDStudios/Emerald/releases/latest">.dmg</a>
-              </div>
-            </div>
-            <div class="dl">
-              <h3>Windows</h3>
-              <span class="engine">WebView2 · Chromium</span>
-              <p class="dim" style="font-size: 14px">Installer or MSI. Extensions work here.</p>
-              <div class="files">
-                <a href="https://github.com/ZDStudios/Emerald/releases/latest">.exe</a>
-                <a href="https://github.com/ZDStudios/Emerald/releases/latest">.msi</a>
-              </div>
-            </div>
-            <div class="dl">
-              <h3>Linux</h3>
-              <span class="engine">WebKitGTK · not Chromium</span>
-              <p class="dim" style="font-size: 14px">
-                Needs <code>libwebkit2gtk-4.1</code>.
-              </p>
-              <div class="files">
-                <a href="https://github.com/ZDStudios/Emerald/releases/latest">.deb</a>
-                <a href="https://github.com/ZDStudios/Emerald/releases/latest">.AppImage</a>
-              </div>
-            </div>
-          </div>
-
-          <p class="dim" style="margin-top: 28px; font-size: 14px">
-            Or build it: <code>pnpm install &amp;&amp; pnpm app:build</code>.
-            <a href="https://github.com/ZDStudios/Emerald#build">Full instructions →</a>
-          </p>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site">
-      <div class="wrap">
-        <span>Emerald — MPL-2.0</span>
-        <span class="spacer"></span>
-        <a href="https://github.com/ZDStudios/Emerald">Source</a>
-        <a href="https://github.com/ZDStudios/Emerald/blob/main/docs/architecture.md">Architecture</a>
-        <a href="https://github.com/ZDStudios/Emerald/blob/main/docs/design-language.md">Design language</a>
-        <a href="https://github.com/ZDStudios/Emerald/blob/main/docs/benchmarks.md">Benchmarks</a>
-      </div>
-      <div class="wrap" style="margin-top: 18px">
-        <span style="max-width: 60ch">
-          Catppuccin palette (MIT). JetBrains Mono, Atkinson Hyperlegible and OpenDyslexic
-          under the SIL Open Font License. This page loads no third-party resources and
-          sets no cookies.
-        </span>
-      </div>
-    </footer>
-  </body>
+</body>
 </html>

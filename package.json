@@ -1,6 +1,6 @@
 {
   "name": "emerald-browser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Emerald — a calm, low-footprint web browser",
   "license": "MPL-2.0",
   "type": "module",

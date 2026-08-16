@@ -1,6 +1,6 @@
 [package]
 name = "emerald"
-version = "0.1.0"
+version = "0.1.1"
 description = "Emerald — a calm, low-footprint web browser"
 authors = ["Emerald contributors"]
 edition = "2021"

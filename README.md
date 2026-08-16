@@ -72,19 +72,20 @@ money this project does not have, and saying so up front beats letting you disco
 
 | Platform | Download | Notes |
 | --- | --- | --- |
-| macOS (Apple silicon) | `Emerald_0.1.0_aarch64.dmg` | WebKit |
-| macOS (Intel) | `Emerald_0.1.0_x64.dmg` | WebKit |
-| Windows | `Emerald_0.1.0_x64-setup.exe` | Chromium (WebView2). Extensions work here |
-| Windows (admins) | `Emerald_0.1.0_x64_en-US.msi` | Same build, for deployment tooling |
-| Linux (Debian, Ubuntu) | `Emerald_0.1.0_amd64.deb` | needs `libwebkit2gtk-4.1` |
-| Linux (anything else) | `Emerald_0.1.0_amd64.AppImage` | `chmod +x` it and run it |
+| macOS (Apple silicon) | `Emerald_0.1.1_aarch64.dmg` | WebKit |
+| macOS (Intel) | `Emerald_0.1.1_x64.dmg` | WebKit |
+| Windows | `Emerald_0.1.1_x64-setup.exe` | Chromium (WebView2). Extensions work here |
+| Windows (admins) | `Emerald_0.1.1_x64_en-US.msi` | Same build, for deployment tooling |
+| Linux (Debian, Ubuntu) | `Emerald_0.1.1_amd64.deb` | needs `libwebkit2gtk-4.1` |
+| Linux (anything else) | `Emerald_0.1.1_amd64.AppImage` | `chmod +x` it and run it |
 
 The Windows `.exe` installs for the current user only, into `%LOCALAPPDATA%`. That is
 deliberate: it means no administrator prompt to click through. The `.msi` is there for
 anyone who needs a machine-wide install or has deployment tooling that expects one.
 
-The `.app.tar.gz` files on the release are update bundles, not something to download —
-Emerald has no updater configured, so they are inert. Take the `.dmg`.
+The `.app.tar.gz` files on the release are Tauri updater bundles, not something to
+download. Emerald's update check (below) does not use them — it fetches the ordinary
+installer — so they are inert. Take the `.dmg`.
 
 One uneven thing worth knowing before you pick: the `.deb` installs Emerald's reading
 typefaces system-wide, so the dyslexia font and reading face apply to **web page text**.
